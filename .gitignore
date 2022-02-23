@@ -1,0 +1,12 @@
+/.bundle/
+/.byebug_history
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/bin/colt
+/choria.conf
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/

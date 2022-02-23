@@ -1,0 +1,9 @@
+image: ruby:2.7.0
+
+before_script:
+  - gem install bundler -v 2.3.6
+  - bundle install
+
+example_job:
+  script:
+    - bundle exec rake
