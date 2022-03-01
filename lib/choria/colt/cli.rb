@@ -19,11 +19,17 @@ module Choria
                aliases: ['--target', '-t'],
                desc: 'Identifies the targets of the command.',
                required: true
-        def run(task_name)
+        def run(*args)
+          input = extract_task_parameters_from_args(args)
+
+          raise Thor::Error, 'Task name is required' if args.empty?
+          raise Thor::Error, "Too many arguments: #{args}" unless args.count == 1
+
+          task_name = args.shift
+
           target = options['targets']
           target = nil if options['targets'] == 'all'
 
-          input = {}
           results = colt.run_bolt_task task_name, input: input, target: target
           $stdout.puts JSON.pretty_generate(results)
         rescue Choria::Orchestrator::Error => e
@@ -47,6 +53,16 @@ module Choria
         no_commands do
           def colt
             @colt ||= Choria::Colt.new logger: Logger.new($stdout)
+          end
+
+          def extract_task_parameters_from_args(args)
+            parameters = args.select { |arg| arg =~ /^\w+=/ }
+            args.reject! { |arg| arg =~ /^\w+=/ }
+
+            parameters.map do |parameter|
+              key, value = parameter.split('=')
+              [key, value]
+            end.to_h
           end
         end
       end
