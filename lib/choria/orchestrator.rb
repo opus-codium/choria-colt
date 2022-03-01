@@ -21,11 +21,11 @@ module Choria
       @tasks_support ||= MCollective::Util::Choria.new.tasks_support
     end
 
-    def run(task, target: nil, verbose: false)
-      logger.debug "Running task: '#{task.name}' (target: #{target})"
+    def run(task, targets: nil, verbose: false)
+      logger.debug "Running task: '#{task.name}' (targets: #{targets.nil? ? 'all' : targets})"
       rpc_client.progress = verbose
 
-      rpc_client.identity_filter target unless target.nil?
+      targets&.each { |target| rpc_client.identity_filter target }
 
       raise DiscoverError, 'No request sent, no node discovered' if rpc_client.discover.size.zero?
 
@@ -42,11 +42,8 @@ module Choria
       end
 
       # TODO: Include stats in logs when logger will be available (see MCollective::RPC#printrpcstats)
-      responses
 
-      raise DiscoverError, "Unexpected RPC responses count: 1 response expected, #{responses.count} responses found." unless responses.count == 1
-
-      task.rpc_response = responses.first
+      task.rpc_responses = responses
     end
 
     def wait_results(task_id:)

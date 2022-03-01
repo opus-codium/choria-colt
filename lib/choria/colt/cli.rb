@@ -27,10 +27,10 @@ module Choria
 
           task_name = args.shift
 
-          target = options['targets']
-          target = nil if options['targets'] == 'all'
+          targets = options['targets'].split ','
+          targets = nil if options['targets'] == 'all'
 
-          results = colt.run_bolt_task task_name, input: input, target: target
+          results = colt.run_bolt_task task_name, input: input, targets: targets
           $stdout.puts JSON.pretty_generate(results)
         rescue Choria::Orchestrator::Error => e
           raise Thor::Error, "#{e.class}: #{e}"

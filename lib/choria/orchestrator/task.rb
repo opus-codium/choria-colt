@@ -4,7 +4,7 @@ module Choria
       class Error < Orchestrator::Error; end
 
       attr_reader :name, :input, :environment, :rpc_results
-      attr_accessor :rpc_response
+      attr_accessor :rpc_responses
 
       def initialize(name, orchestrator:, input: {}, environment: 'production')
         @name = name
@@ -24,7 +24,10 @@ module Choria
       end
 
       def wait
-        @rpc_results = @orchestrator.wait_results task_id: rpc_response[:body][:data][:task_id]
+        task_ids = rpc_responses.map { |res| res[:body][:data][:task_id] }.uniq
+        raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
+
+        @rpc_results = @orchestrator.wait_results task_id: task_ids.first
       end
 
       def results
