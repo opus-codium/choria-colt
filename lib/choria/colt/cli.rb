@@ -50,19 +50,20 @@ module Choria
                aliases: ['-E'],
                desc: 'Puppet environment to grab tasks from',
                default: 'production'
-        def show(*task)
+        def show(*tasks_names)
           environment = options['environment']
           cache_directory = File.expand_path('.cache/colt/tasks')
           FileUtils.mkdir_p cache_directory
+          # TODO: Support multiple infrastructure
           cache = Cache.new(path: File.join(cache_directory, "#{environment}.yaml"))
 
           tasks = colt.tasks(environment: environment, cache: cache)
-          tasks.reject! { |task, metadata| metadata['metadata']['private'] }
 
-          puts <<~OUTPUT
-            Tasks
-            #{tasks.map { |task, metadata| "#{task}#{' ' * (60 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
-          OUTPUT
+          if tasks_names.nil?
+            show_tasks_summary
+          else
+            tasks_names.each { |task_name| show_task_details(task_name, tasks) }
+          end
         end
 
         no_commands do
@@ -71,13 +72,32 @@ module Choria
           end
 
           def extract_task_parameters_from_args(args)
-            parameters = args.select { |arg| arg =~ /^\w+=/ }
+            parameters = args.grep(/^\w+=/)
             args.reject! { |arg| arg =~ /^\w+=/ }
 
             parameters.map do |parameter|
               key, value = parameter.split('=')
               [key, value]
             end.to_h
+          end
+
+          def show_tasks_summary(tasks)
+            tasks.reject! { |_task, metadata| metadata['metadata']['private'] }
+
+            puts <<~OUTPUT
+              Tasks
+              #{tasks.map { |task, metadata| "#{task}#{' ' * (60 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
+            OUTPUT
+          end
+
+          def show_task_details(task_name, tasks)
+            metadata = tasks[task_name]
+            puts <<~OUTPUT
+              Task: '#{task_name}'
+                #{metadata['metadata']['description']}
+
+                #{metadata}
+            OUTPUT
           end
         end
       end
