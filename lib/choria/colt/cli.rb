@@ -46,8 +46,23 @@ module Choria
           Providing the name of a task will display detailed documentation for
           the task, including a list of available parameters.
         DESC
-        def show(task_name)
-          raise NotImplementedError
+        option :environment,
+               aliases: ['-E'],
+               desc: 'Puppet environment to grab tasks from',
+               default: 'production'
+        def show(*task)
+          environment = options['environment']
+          cache_directory = File.expand_path('.cache/colt/tasks')
+          FileUtils.mkdir_p cache_directory
+          cache = Cache.new(path: File.join(cache_directory, "#{environment}.yaml"))
+
+          tasks = colt.tasks(environment: environment, cache: cache)
+          tasks.reject! { |task, metadata| metadata['metadata']['private'] }
+
+          puts <<~OUTPUT
+            Tasks
+            #{tasks.map { |task, metadata| "#{task}#{' ' * (60 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
+          OUTPUT
         end
 
         no_commands do
