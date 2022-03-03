@@ -96,7 +96,8 @@ module Choria
               Task: '#{task_name}'
                 #{metadata['metadata']['description']}
 
-                #{metadata}
+              Parameters:
+              #{JSON.pretty_generate(metadata['metadata']['parameters']).gsub(/^/, '  ')}
             OUTPUT
           end
         end
