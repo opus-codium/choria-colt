@@ -32,6 +32,8 @@ module Choria
 
           results = colt.run_bolt_task task_name, input: input, targets: targets
 
+          File.write 'last_run.json', JSON.pretty_generate(results)
+
           show_results(results)
         rescue Choria::Orchestrator::Error => e
           raise Thor::Error, "#{e.class}: #{e}"
