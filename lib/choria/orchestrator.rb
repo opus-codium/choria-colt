@@ -49,6 +49,7 @@ module Choria
     def wait_results(task_id:)
       raise 'Task ID is required!' if task_id.nil?
 
+      task_status_results = nil
       loop do
         task_status_results = rpc_client.task_status(task_id: task_id).map(&:results)
         logger.debug "Task ##{task_id} status: #{task_status_results}"
