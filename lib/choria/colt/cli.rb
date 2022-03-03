@@ -31,7 +31,8 @@ module Choria
           targets = nil if options['targets'] == 'all'
 
           results = colt.run_bolt_task task_name, input: input, targets: targets
-          $stdout.puts JSON.pretty_generate(results)
+
+          show_results(results)
         rescue Choria::Orchestrator::Error => e
           raise Thor::Error, "#{e.class}: #{e}"
         end
@@ -54,7 +55,6 @@ module Choria
           environment = options['environment']
           cache_directory = File.expand_path('.cache/colt/tasks')
           FileUtils.mkdir_p cache_directory
-          # TODO: Support multiple infrastructure
           cache = Cache.new(path: File.join(cache_directory, "#{environment}.yaml"))
 
           tasks = colt.tasks(environment: environment, cache: cache)
@@ -99,6 +99,24 @@ module Choria
               Parameters:
               #{JSON.pretty_generate(metadata['metadata']['parameters']).gsub(/^/, '  ')}
             OUTPUT
+          end
+
+          def show_results(results)
+            results.each { |result| show_result(result) }
+          end
+
+          def show_result(result)
+            return show_generic_output(result) unless result.dig(:result, '_output').nil? || (result.dig(:result, 'exit_code') != 0)
+
+            $stdout.puts JSON.pretty_generate(result)
+          end
+
+          def show_generic_output(result)
+            target = result[:sender]
+
+            output = result.dig(:result, '_output')
+            $stdout.puts "'#{target}':"
+            output.split("\n").each { |line| $stdout.puts("  #{line}") }
           end
         end
       end
