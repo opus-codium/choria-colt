@@ -59,8 +59,8 @@ module Choria
 
           tasks = colt.tasks(environment: environment, cache: cache)
 
-          if tasks_names.nil?
-            show_tasks_summary
+          if tasks_names.empty?
+            show_tasks_summary(tasks)
           else
             tasks_names.each { |task_name| show_task_details(task_name, tasks) }
           end
