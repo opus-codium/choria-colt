@@ -118,7 +118,7 @@ module Choria
 
             output = result.dig(:result, '_output')
             $stdout.puts "'#{target}':"
-            output.split("\n").each { |line| $stdout.puts("  #{line}") }
+            output.each { |line| $stdout.puts("  #{line}") }
           end
         end
       end

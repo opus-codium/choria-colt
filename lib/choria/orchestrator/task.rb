@@ -1,3 +1,5 @@
+require 'choria/colt/data_structurer'
+
 module Choria
   class Orchestrator
     class Task
@@ -31,14 +33,7 @@ module Choria
       end
 
       def results
-        @rpc_results.map do |res|
-          raise NotImplementedError, 'What to do when res[:data][:stderr] contains something?' unless res[:data][:stderr].empty?
-
-          res[:result] = JSON.parse res[:data][:stdout]
-          res[:data].delete :stderr
-          res[:data].delete :stdout
-          res
-        end
+        Choria::Colt::DataStructurer.structure(@rpc_results)
       end
 
       private
