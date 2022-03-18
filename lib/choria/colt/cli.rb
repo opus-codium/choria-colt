@@ -85,6 +85,13 @@ module Choria
 
             parameters.map do |parameter|
               key, value = parameter.split('=')
+
+              # TODO: Convert to boolean only if the expected type of parameter is boolean
+              # TODO: Support String to integer convertion
+              # TODO: Support @notation from parameter and/or whole input
+              value = true if value == 'true'
+              value = false if value == 'false'
+
               [key, value]
             end.to_h
           end
