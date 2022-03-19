@@ -39,7 +39,7 @@ module Choria
       private
 
       def _metadata
-        # puts 'Retrieving task metadata for task %s from the Puppet Server' % task if verbose
+        @orchestrator.logger.wait 'Downloading task metadata from the Puppet Server…'
         @orchestrator.tasks_support.task_metadata(@name, @environment)
       rescue RuntimeError => e
         raise Error, e.message

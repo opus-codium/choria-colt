@@ -30,15 +30,14 @@ module Choria
       logger.debug "Filtering targets with classes: #{targets_with_classes}" unless targets_with_classes.nil?
       targets_with_classes&.each { |klass| rpc_client.class_filter klass }
 
+      logger.wait 'Discovering targets…'
       raise DiscoverError, 'No request sent, no node discovered' if rpc_client.discover.size.zero?
 
-      logger.info "Attempting to download and run task '#{task.name}' on #{rpc_client.discover.size} nodes"
-
+      logger.wait "Downloading task '#{task.name}' on #{rpc_client.discover.size} nodes…"
       rpc_client.download(task: task.name, files: task.files, verbose: verbose)
 
-      # TODO: Extract error from 'rpc' (see MCollective::RPC#printrpc)
-
       responses = []
+      logger.wait "Starting task '#{task.name}' on #{rpc_client.discover.size} nodes…"
       rpc_client.run_no_wait(task: task.name, files: task.files, input: task.input.to_json, verbose: verbose) do |response|
         logger.debug "  Response: '#{response}'"
         responses << response
@@ -52,6 +51,7 @@ module Choria
     def wait_results(task_id:)
       raise 'Task ID is required!' if task_id.nil?
 
+      logger.wait 'Waiting task results…'
       task_status_results = nil
       loop do
         task_status_results = rpc_client.task_status(task_id: task_id).map(&:results)
