@@ -27,8 +27,10 @@ module Choria
       logger.debug "Running task: '#{task.name}' (targets: #{targets.nil? ? 'all' : targets})"
       targets&.each { |target| rpc_client.identity_filter target }
 
-      logger.debug "Filtering targets with classes: #{targets_with_classes}" unless targets_with_classes.nil?
-      targets_with_classes&.each { |klass| rpc_client.class_filter klass }
+      unless targets_with_classes.nil?
+        logger.debug "Filtering targets with classes: #{targets_with_classes}"
+        targets_with_classes.each { |klass| rpc_client.class_filter klass }
+      end
 
       logger.wait 'Discovering targets…'
       raise DiscoverError, 'No request sent, no node discovered' if rpc_client.discover.size.zero?
