@@ -10,9 +10,9 @@ module Choria
 
       def initialize(name, orchestrator:, input: {}, environment: 'production')
         @name = name
-        @input = input
         @environment = environment
         @orchestrator = orchestrator
+        @input = default_input.merge input
 
         validate_inputs
       end
@@ -43,6 +43,13 @@ module Choria
         @orchestrator.tasks_support.task_metadata(@name, @environment)
       rescue RuntimeError => e
         raise Error, e.message
+      end
+
+      def default_input
+        parameters_with_defaults = metadata['metadata']['parameters'].reject { |_k, v| v['default'].nil? }
+        parameters_with_defaults.map do |parameter, meta|
+          [parameter, meta['default']]
+        end.to_h
       end
 
       def validate_inputs
