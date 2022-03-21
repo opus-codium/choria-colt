@@ -2,7 +2,7 @@ require 'choria/colt'
 require 'choria/colt/cli/thor'
 
 require 'json'
-require 'logger'
+require 'tty/logger'
 
 module Choria
   class Colt
@@ -74,9 +74,19 @@ module Choria
           end
         end
 
-        no_commands do
+        no_commands do # rubocop:disable Metrics/BlockLength
           def colt
-            @colt ||= Choria::Colt.new logger: Logger.new($stdout)
+            @colt ||= Choria::Colt.new logger: logger
+          end
+
+          def logger
+            @logger ||= TTY::Logger.new do |config|
+              config.handlers = [
+                [:console, { output: $stderr, level: :info }],
+                [:stream, { output: File.open('colt-debug.log', 'a'), level: :debug }],
+              ]
+              config.metadata = %i[date time]
+            end
           end
 
           def extract_task_parameters_from_args(args)
