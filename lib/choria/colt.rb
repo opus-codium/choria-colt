@@ -19,11 +19,11 @@ module Choria
       @orchestrator = Choria::Orchestrator.new logger: @logger
     end
 
-    def run_bolt_task(task_name, input: {}, targets: nil)
+    def run_bolt_task(task_name, input: {}, targets: nil, targets_with_classes: nil)
       logger.debug "Instantiate task '#{task_name}' and validate input"
       task = Choria::Orchestrator::Task.new(task_name, input: input, orchestrator: orchestrator)
 
-      orchestrator.run(task, targets: targets)
+      orchestrator.run(task, targets: targets, targets_with_classes: targets_with_classes)
       task.wait
       task.results
     rescue Choria::Orchestrator::Error => e

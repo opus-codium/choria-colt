@@ -17,20 +17,26 @@ module Choria
         DESC
         option :targets,
                aliases: ['--target', '-t'],
-               desc: 'Identifies the targets of the command.',
-               required: true
+               desc: 'Identifies the targets of the command.'
+        option :targets_with_classes,
+               aliases: ['--targets-with-class', '-C'],
+               desc: 'Select the targets which have the specified Puppet classes.'
         def run(*args)
           input = extract_task_parameters_from_args(args)
 
           raise Thor::Error, 'Task name is required' if args.empty?
           raise Thor::Error, "Too many arguments: #{args}" unless args.count == 1
 
+          raise Thor::Error, 'Flag --targets or --targets-with-class is required' if options['targets'].nil? && options['targets_with_classes'].nil?
+
           task_name = args.shift
 
-          targets = options['targets'].split ','
+          targets = options['targets']&.split(',')
           targets = nil if options['targets'] == 'all'
 
-          results = colt.run_bolt_task task_name, input: input, targets: targets
+          targets_with_classes = options['targets_with_classes']&.split(',')
+
+          results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes
 
           File.write 'last_run.json', JSON.pretty_generate(results)
 

@@ -21,11 +21,14 @@ module Choria
       @tasks_support ||= MCollective::Util::Choria.new.tasks_support
     end
 
-    def run(task, targets: nil, verbose: false)
-      logger.debug "Running task: '#{task.name}' (targets: #{targets.nil? ? 'all' : targets})"
+    def run(task, targets: nil, targets_with_classes: nil, verbose: false)
       rpc_client.progress = verbose
 
+      logger.debug "Running task: '#{task.name}' (targets: #{targets.nil? ? 'all' : targets})"
       targets&.each { |target| rpc_client.identity_filter target }
+
+      logger.debug "Filtering targets with classes: #{targets_with_classes}" unless targets_with_classes.nil?
+      targets_with_classes&.each { |klass| rpc_client.class_filter klass }
 
       raise DiscoverError, 'No request sent, no node discovered' if rpc_client.discover.size.zero?
 
