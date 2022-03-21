@@ -58,15 +58,15 @@ module Choria
       loop do
         task_status_results = rpc_client.task_status(task_id: task_id).map(&:results)
         logger.debug "Task ##{task_id} status: #{task_status_results}"
-        break if task_completed? task_status_results
+        break if task_terminated? task_status_results
       end
 
       task_status_results
     end
 
-    def task_completed?(results)
+    def task_terminated?(results)
       results.each do |result|
-        return false unless result[:data][:completed]
+        return false if result[:data][:exitcode] == -1
       end
 
       true
