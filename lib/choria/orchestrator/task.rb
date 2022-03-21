@@ -5,7 +5,7 @@ module Choria
     class Task
       class Error < Orchestrator::Error; end
 
-      attr_reader :name, :input, :environment, :rpc_results
+      attr_reader :name, :input, :environment, :rpc_results, :results
       attr_accessor :rpc_responses
 
       def initialize(name, orchestrator:, input: {}, environment: 'production')
@@ -35,14 +35,56 @@ module Choria
 
         raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
 
-        @rpc_results = @orchestrator.wait_results task_id: task_ids.first
+        @id = task_ids.first
+
+        wait_results
       end
 
-      def results
-        Choria::Colt::DataStructurer.structure(@rpc_results)
+      def on_result(&block)
+        @on_result = lambda { |result|
+          block.call(result)
+        }
       end
 
       private
+
+      def rpc_results=(results)
+        (results - @rpc_results).each do |result|
+          next unless result[:data][:exitcode] != -1
+
+          logger.debug "New result for task ##{@id}: #{result}"
+          structured_result = Choria::Colt::DataStructurer.structure(result)
+
+          @on_result&.call(structured_result)
+
+          @results << structured_result
+        end
+
+        @rpc_results = results
+      end
+
+      def wait_results
+        raise 'Task ID is required!' if @id.nil?
+
+        logger.wait 'Waiting task results…'
+
+        @results = []
+        @rpc_results = []
+
+        loop do
+          self.rpc_results = @orchestrator.rpc_client.task_status(task_id: @id).map(&:results)
+
+          break if terminated?
+        end
+      end
+
+      def terminated?
+        @rpc_results.each do |result|
+          return false if result[:data][:exitcode] == -1
+        end
+
+        true
+      end
 
       def _metadata
         logger.wait 'Downloading task metadata from the Puppet Server…'
