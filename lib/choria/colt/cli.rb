@@ -127,7 +127,11 @@ module Choria
           end
 
           def show_result(result)
-            return show_generic_output(result) unless result.dig(:result, '_output').nil? || (result.dig(:result, 'exit_code') != 0)
+            if result.dig(:data, :exitcode).zero?
+              unless result.dig(:result, '_output').nil?
+                return show_generic_output(result)
+              end
+            end
 
             $stdout.puts JSON.pretty_generate(result)
           end
