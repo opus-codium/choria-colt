@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'choria-mcorpc-support'
   spec.add_dependency 'deep_merge'
+  spec.add_dependency 'pastel'
   spec.add_dependency 'puppet'
   spec.add_dependency 'thor'
   spec.add_dependency 'tty-logger'
