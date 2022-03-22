@@ -47,9 +47,9 @@ module Choria
 
       def default_input
         parameters_with_defaults = metadata['metadata']['parameters'].reject { |_k, v| v['default'].nil? }
-        parameters_with_defaults.map do |parameter, meta|
-          [parameter, meta['default']]
-        end.to_h
+        parameters_with_defaults.transform_values do |meta|
+          meta['default']
+        end
       end
 
       def validate_inputs
