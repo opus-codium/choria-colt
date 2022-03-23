@@ -50,37 +50,15 @@ module Choria
       task.rpc_responses = responses
     end
 
-    def wait_results(task_id:)
-      raise 'Task ID is required!' if task_id.nil?
-
-      logger.wait 'Waiting task results…'
-      task_status_results = nil
-      loop do
-        task_status_results = rpc_client.task_status(task_id: task_id).map(&:results)
-        logger.debug "Task ##{task_id} status: #{task_status_results}"
-        break if task_terminated? task_status_results
-      end
-
-      task_status_results
-    end
-
-    def task_terminated?(results)
-      results.each do |result|
-        return false if result[:data][:exitcode] == -1
-      end
-
-      true
-    end
-
     def validate_rpc_result(result)
       raise Error, "The RPC agent returned an error: #{result[:statusmsg]}" unless (result[:statuscode]).zero?
     end
 
-    private
-
     def rpc_client
       @rpc_client ||= rpcclient('bolt_tasks', options: rpc_options)
     end
+
+    private
 
     def rpc_options
       {

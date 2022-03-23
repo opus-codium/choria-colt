@@ -36,11 +36,11 @@ module Choria
 
           targets_with_classes = options['targets_with_classes']&.split(',')
 
-          results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes
+          results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes do |result|
+            show_result(result)
+          end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
-
-          show_results(results)
         rescue Choria::Orchestrator::Error => e
           raise Thor::Error, "#{e.class}: #{e}"
         end
@@ -124,10 +124,6 @@ module Choria
               Parameters:
               #{JSON.pretty_generate(metadata['metadata']['parameters']).gsub(/^/, '  ')}
             OUTPUT
-          end
-
-          def show_results(results)
-            results.each { |result| show_result(result) }
           end
 
           def show_result(result)
