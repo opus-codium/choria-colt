@@ -36,14 +36,6 @@ module Choria
         task['name']
       end
 
-      def tasks_metadata(tasks, environment)
-        tasks.map do |task|
-          logger.debug "Fetching metadata for task '#{task}' (environment: '#{environment}')"
-          metadata = orchestrator.tasks_support.task_metadata(task, environment)
-          [task, metadata]
-        end.to_h
-      end
-
       return tasks_metadata(tasks_names, environment) if cache.nil?
 
       cached_tasks = cache.load
@@ -53,6 +45,16 @@ module Choria
       cache.save updated_tasks
 
       updated_tasks
+    end
+
+    private
+
+    def tasks_metadata(tasks, environment)
+      tasks.map do |task|
+        logger.debug "Fetching metadata for task '#{task}' (environment: '#{environment}')"
+        metadata = orchestrator.tasks_support.task_metadata(task, environment)
+        [task, metadata]
+      end.to_h
     end
   end
 end
