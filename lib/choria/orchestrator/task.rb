@@ -26,7 +26,13 @@ module Choria
       end
 
       def wait
-        task_ids = rpc_responses.map { |res| res[:body][:data][:task_id] }.uniq
+        rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
+        rpc_responses_error.each do |res|
+          logger.error "Task request failed on '#{res[:senderid]}':\n#{pp res}"
+        end
+
+        task_ids = rpc_responses_ok.map { |res| res[:body][:data][:task_id] }.uniq
+
         raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
 
         @rpc_results = @orchestrator.wait_results task_id: task_ids.first
@@ -39,7 +45,7 @@ module Choria
       private
 
       def _metadata
-        @orchestrator.logger.wait 'Downloading task metadata from the Puppet Server…'
+        logger.wait 'Downloading task metadata from the Puppet Server…'
         @orchestrator.tasks_support.task_metadata(@name, @environment)
       rescue RuntimeError => e
         raise Error, e.message
@@ -55,6 +61,10 @@ module Choria
       def validate_inputs
         ok, reason = @orchestrator.tasks_support.validate_task_inputs(@input, metadata)
         raise Error, reason.sub(/^\n/, '') unless ok
+      end
+
+      def logger
+        @orchestrator.logger
       end
     end
   end
