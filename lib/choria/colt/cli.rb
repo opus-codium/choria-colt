@@ -1,4 +1,5 @@
 require 'choria/colt'
+require 'choria/colt/cli/formatter'
 require 'choria/colt/cli/thor'
 
 require 'json'
@@ -37,7 +38,7 @@ module Choria
           targets_with_classes = options['targets_with_classes']&.split(',')
 
           results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes do |result|
-            show_result(result)
+            $stdout.puts formatter.process_result(result)
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
@@ -89,6 +90,10 @@ module Choria
             end
           end
 
+          def formatter
+            @formatter ||= Formatter.new(colored: $stdout.tty?)
+          end
+
           def extract_task_parameters_from_args(args)
             parameters = args.grep(/^\w+=/)
             args.reject! { |arg| arg =~ /^\w+=/ }
@@ -135,31 +140,12 @@ module Choria
             end.join "\n"
           end
 
-          def show_result(result)
-            if result.dig(:data, :exitcode).zero?
-              unless result.dig(:result, '_output').nil?
-                return show_generic_output(result)
-              end
-            end
-
-            $stdout.puts JSON.pretty_generate(result)
-          end
-
-          def show_generic_output(result)
-            target = result[:sender]
-
-            output = result.dig(:result, '_output')
-            $stdout.puts "#{pastel.host target}"
-            output.each { |line| $stdout.puts("  #{line}") }
-          end
-
           def pastel
             @pastel ||= _pastel
           end
 
           def _pastel
             pastel = Pastel.new(enabled: $stdout.tty?)
-            pastel.alias_color(:host, :cyan)
             pastel.alias_color(:title, :cyan)
             pastel.alias_color(:parameter, :yellow)
             pastel.alias_color(:parameter_type, :bright_white)

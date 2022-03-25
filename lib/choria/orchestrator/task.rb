@@ -1,5 +1,8 @@
 require 'choria/colt/data_structurer'
 
+require 'active_support'
+require 'active_support/core_ext/hash/indifferent_access'
+
 module Choria
   class Orchestrator
     class Task
@@ -54,7 +57,7 @@ module Choria
           next unless result[:data][:exitcode] != -1
 
           logger.debug "New result for task ##{@id}: #{result}"
-          structured_result = Choria::Colt::DataStructurer.structure(result)
+          structured_result = Choria::Colt::DataStructurer.structure(result).with_indifferent_access
 
           @on_result&.call(structured_result)
 
