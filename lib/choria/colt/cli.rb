@@ -94,7 +94,7 @@ module Choria
             args.reject! { |arg| arg =~ /^\w+=/ }
 
             parameters.map do |parameter|
-              key, value = parameter.split('=')
+              key, value = parameter.split('=', 2)
 
               # TODO: Convert to boolean only if the expected type of parameter is boolean
               # TODO: Support String to integer convertion
