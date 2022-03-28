@@ -94,7 +94,7 @@ module Choria
             args.reject! { |arg| arg =~ /^\w+=/ }
 
             parameters.map do |parameter|
-              key, value = parameter.split('=')
+              key, value = parameter.split('=', 2)
 
               # TODO: Convert to boolean only if the expected type of parameter is boolean
               # TODO: Support String to integer convertion
@@ -127,7 +127,11 @@ module Choria
           end
 
           def show_result(result)
-            return show_generic_output(result) unless result.dig(:result, '_output').nil? || (result.dig(:result, 'exit_code') != 0)
+            if result.dig(:data, :exitcode).zero?
+              unless result.dig(:result, '_output').nil?
+                return show_generic_output(result)
+              end
+            end
 
             $stdout.puts JSON.pretty_generate(result)
           end

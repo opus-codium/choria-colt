@@ -14,6 +14,7 @@ module Choria
         @orchestrator = orchestrator
         @input = default_input.merge input
 
+        logger.debug "Task inputs: #{input}"
         validate_inputs
       end
 
