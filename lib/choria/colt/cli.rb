@@ -110,7 +110,7 @@ module Choria
             tasks.reject! { |_task, metadata| metadata['metadata']['private'] }
 
             puts <<~OUTPUT
-              Tasks
+              #{pastel.title 'Tasks'}
               #{tasks.map { |task, metadata| "#{task}#{' ' * (60 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
             OUTPUT
           end
@@ -118,12 +118,21 @@ module Choria
           def show_task_details(task_name, tasks)
             metadata = tasks[task_name]
             puts <<~OUTPUT
-              Task: '#{task_name}'
+              #{pastel.title "Task: #{task_name}"}
                 #{metadata['metadata']['description']}
 
-              Parameters:
-              #{JSON.pretty_generate(metadata['metadata']['parameters']).gsub(/^/, '  ')}
+              #{pastel.title 'Parameters'}
+              #{format_task_parameters(metadata['metadata']['parameters']).gsub(/^/, '  ')}
             OUTPUT
+          end
+
+          def format_task_parameters(parameters)
+            parameters.map do |parameter, metadata|
+              <<~OUTPUT
+                #{pastel.parameter(parameter)}  #{pastel.parameter_type metadata['type']}
+                  #{metadata['description']}
+              OUTPUT
+            end.join "\n"
           end
 
           def show_result(result)
@@ -140,8 +149,21 @@ module Choria
             target = result[:sender]
 
             output = result.dig(:result, '_output')
-            $stdout.puts "'#{target}':"
+            $stdout.puts "#{pastel.host target}"
             output.each { |line| $stdout.puts("  #{line}") }
+          end
+
+          def pastel
+            @pastel ||= _pastel
+          end
+
+          def _pastel
+            pastel = Pastel.new(enabled: $stdout.tty?)
+            pastel.alias_color(:host, :cyan)
+            pastel.alias_color(:title, :cyan)
+            pastel.alias_color(:parameter, :yellow)
+            pastel.alias_color(:parameter_type, :bright_white)
+            pastel
           end
         end
       end
