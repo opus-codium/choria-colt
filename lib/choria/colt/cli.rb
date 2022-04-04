@@ -133,10 +133,12 @@ module Choria
 
           def format_task_parameters(parameters)
             parameters.map do |parameter, metadata|
-              <<~OUTPUT
+              output = <<~OUTPUT
                 #{pastel.parameter(parameter)}  #{pastel.parameter_type metadata['type']}
                   #{metadata['description']}
               OUTPUT
+              output += "  Default: #{metadata['default']}" unless metadata['default'].nil?
+              output
             end.join "\n"
           end
 
