@@ -17,7 +17,7 @@ module Choria
         res[:data].delete :stderr
 
         # Convert '_output' (ie. stdout) lines into array
-        res[:result]['_output'] = res[:result]['_output'].split("\n")
+        res[:result]['_output'] = res[:result]['_output'].split("\n") unless res[:result]['_output'].nil?
 
         res
       end

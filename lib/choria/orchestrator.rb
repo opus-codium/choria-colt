@@ -32,14 +32,14 @@ module Choria
         targets_with_classes.each { |klass| rpc_client.class_filter klass }
       end
 
-      logger.wait 'Discovering targets…'
+      logger.info 'Discovering targets…'
       raise DiscoverError, 'No request sent, no node discovered' if rpc_client.discover.size.zero?
 
-      logger.wait "Downloading task '#{task.name}' on #{rpc_client.discover.size} nodes…"
+      logger.info "Downloading task '#{task.name}' on #{rpc_client.discover.size} nodes…"
       rpc_client.download(task: task.name, files: task.files, verbose: verbose)
 
       responses = []
-      logger.wait "Starting task '#{task.name}' on #{rpc_client.discover.size} nodes…"
+      logger.info "Starting task '#{task.name}' on #{rpc_client.discover.size} nodes…"
       rpc_client.run_no_wait(task: task.name, files: task.files, input: task.input.to_json, verbose: verbose) do |response|
         logger.debug "  Response: '#{response}'"
         responses << response

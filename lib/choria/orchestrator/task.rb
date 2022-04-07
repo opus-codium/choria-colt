@@ -17,6 +17,8 @@ module Choria
         @orchestrator = orchestrator
         @input = default_input.merge input
 
+        @results = []
+
         logger.debug "Task inputs: #{input}"
         validate_inputs
       end
@@ -53,7 +55,11 @@ module Choria
       private
 
       def rpc_results=(results)
-        (results - @rpc_results).each do |result|
+        new_result_hosts = (results.map { |res| res[:sender] }) - (@results.map { |res| res[:sender] })
+
+        new_result_hosts.each do |host|
+          result = results.find { |res| res[:sender] == host }
+
           next unless result[:data][:exitcode] != -1
 
           logger.debug "New result for task ##{@id}: #{result}"
@@ -70,7 +76,7 @@ module Choria
       def wait_results
         raise 'Task ID is required!' if @id.nil?
 
-        logger.wait 'Waiting task results…'
+        logger.info 'Waiting task results…'
 
         @results = []
         @rpc_results = []
@@ -91,7 +97,7 @@ module Choria
       end
 
       def _metadata
-        logger.wait 'Downloading task metadata from the Puppet Server…'
+        logger.info 'Downloading task metadata from the Puppet Server…'
         @orchestrator.tasks_support.task_metadata(@name, @environment)
       rescue RuntimeError => e
         raise Error, e.message

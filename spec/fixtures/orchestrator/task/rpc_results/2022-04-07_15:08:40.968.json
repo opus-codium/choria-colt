@@ -1,0 +1,62 @@
+[
+  {
+    "sender": "vm001.example.com",
+    "statuscode": 0,
+    "statusmsg": "OK",
+    "data": {
+      "task": "dummy",
+      "callerid": "choria=romuald.mcollective",
+      "exitcode": -1,
+      "stdout": "{\"_output\":\"\"}",
+      "stderr": "",
+      "completed": false,
+      "runtime": 1.281068894,
+      "start_time": 1649336923
+    }
+  },
+  {
+    "sender": "vm002.example.com",
+    "statuscode": 0,
+    "statusmsg": "OK",
+    "data": {
+      "task": "dummy",
+      "callerid": "choria=romuald.mcollective",
+      "exitcode": -1,
+      "stdout": "{\"_output\":\"\"}",
+      "stderr": "",
+      "completed": false,
+      "runtime": 1.312432943,
+      "start_time": 1649336923
+    }
+  },
+  {
+    "sender": "vm003.example.com",
+    "statuscode": 0,
+    "statusmsg": "OK",
+    "data": {
+      "task": "dummy",
+      "callerid": "choria=romuald.mcollective",
+      "exitcode": -1,
+      "stdout": "{\"_output\":\"\"}",
+      "stderr": "",
+      "completed": false,
+      "runtime": 1.317748336,
+      "start_time": 1649336923
+    }
+  },
+  {
+    "sender": "vm004.example.com",
+    "statuscode": 0,
+    "statusmsg": "OK",
+    "data": {
+      "task": "dummy",
+      "callerid": "choria=romuald.mcollective",
+      "exitcode": -1,
+      "stdout": "{\"_output\":\"\"}",
+      "stderr": "",
+      "completed": false,
+      "runtime": 1.371230097,
+      "start_time": 1649336923
+    }
+  }
+]

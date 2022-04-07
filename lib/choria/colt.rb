@@ -52,6 +52,8 @@ module Choria
     private
 
     def tasks_metadata(tasks, environment)
+      logger.info "Fetching metadata for tasks (environment: '#{environment}')"
+
       tasks.map do |task|
         logger.debug "Fetching metadata for task '#{task}' (environment: '#{environment}')"
         metadata = orchestrator.tasks_support.task_metadata(task, environment)
