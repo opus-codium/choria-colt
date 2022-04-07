@@ -26,7 +26,26 @@ module Choria
         end
 
         def process_error(result)
-          JSON.pretty_generate(result)
+          host = "#{pastel.bright_red '⨯'} #{pastel.host(result[:sender])}"
+          output = result.dig(:result, '_output')
+          error_details = JSON.pretty_generate(result.dig(:result, :_error, :details)).split "\n"
+          error_desc = [
+            "#{pastel.bright_red result.dig(:result, :_error, :kind)}: #{pastel.bright_white result.dig(:result, :_error, :msg)}",
+            "  details: #{error_details.shift}",
+            error_details.map { |line| "  #{line}" },
+          ]
+
+          headline = "#{pastel.on_red ' '} "
+
+          [
+            host,
+            [
+              error_desc,
+              nil,
+              pastel.bright_red('output:'),
+              output,
+            ].flatten.map { |line| "#{headline}#{line}" },
+          ].flatten.join("\n")
         end
       end
     end

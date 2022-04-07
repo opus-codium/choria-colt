@@ -9,7 +9,7 @@ Metrics/AbcSize:
   Max: 20
 
 Metrics/MethodLength:
-  Max: 17
+  Max: 20
 
 Layout/LineLength:
   Enabled: false

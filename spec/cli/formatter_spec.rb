@@ -31,5 +31,34 @@ RSpec.describe Choria::Colt::CLI::Formatter do
         end
       end
     end
+
+    context 'when command ran with error with output' do
+      # "/bin/false --version"
+      let(:rpc_result) { load_from_result_file 'bin_false__version' }
+      describe '#process_result' do
+        it 'format a successful result' do
+          expect(formatter.process_result(rpc_result)).to eq(
+            # rubocop:disable Layout/TrailingWhitespace
+            <<~OUTPUT.chomp
+              ⨯ vm012345.example.com
+                choria.tasks/task-error: The task errored with a code 1
+                  details: {
+                    "exitcode": 1
+                  }
+                
+                output:
+                false (GNU coreutils) 8.30
+                Copyright (C) 2018 Free Software Foundation, Inc.
+                License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+                This is free software: you are free to change and redistribute it.
+                There is NO WARRANTY, to the extent permitted by law.
+              #{'  '}
+                Written by Jim Meyering.
+            OUTPUT
+            # rubocop:enable Layout/TrailingWhitespace
+          )
+        end
+      end
+    end
   end
 end
