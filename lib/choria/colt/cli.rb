@@ -9,6 +9,9 @@ module Choria
   class Colt
     class CLI < Thor
       class Tasks < Thor
+        class_option :log_level,
+                     desc: 'Set log level for CLI',
+                     default: 'info'
         # BOLT: desc 'run <task name> [parameters] {--targets TARGETS | --query QUERY | --rerun FILTER} [options]', 'Run a Bolt task'
         desc 'run <task name> [parameters] --targets TARGETS [options]', 'Run a Bolt task'
         long_desc <<~DESC
@@ -83,7 +86,7 @@ module Choria
           def logger
             @logger ||= TTY::Logger.new do |config|
               config.handlers = [
-                [:console, { output: $stderr, level: :info }],
+                [:console, { output: $stderr, level: options['log_level'].to_sym }],
                 [:stream, { output: File.open('colt-debug.log', 'a'), level: :debug }],
               ]
               config.metadata = %i[date time]
