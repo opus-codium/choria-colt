@@ -17,6 +17,8 @@ module Choria
         @orchestrator = orchestrator
         @input = default_input.merge input
 
+        @results = []
+
         logger.debug "Task inputs: #{input}"
         validate_inputs
       end
@@ -53,7 +55,11 @@ module Choria
       private
 
       def rpc_results=(results)
-        (results - @rpc_results).each do |result|
+        new_result_hosts = (results.map { |res| res[:sender] }) - (@results.map { |res| res[:sender] })
+
+        new_result_hosts.each do |host|
+          result = results.find { |res| res[:sender] == host }
+
           next unless result[:data][:exitcode] != -1
 
           logger.debug "New result for task ##{@id}: #{result}"
