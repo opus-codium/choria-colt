@@ -76,7 +76,7 @@ module Choria
       def wait_results
         raise 'Task ID is required!' if @id.nil?
 
-        logger.wait 'Waiting task results…'
+        logger.info 'Waiting task results…'
 
         @results = []
         @rpc_results = []
@@ -97,7 +97,7 @@ module Choria
       end
 
       def _metadata
-        logger.wait 'Downloading task metadata from the Puppet Server…'
+        logger.info 'Downloading task metadata from the Puppet Server…'
         @orchestrator.tasks_support.task_metadata(@name, @environment)
       rescue RuntimeError => e
         raise Error, e.message
