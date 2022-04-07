@@ -21,7 +21,7 @@ module Choria
       @tasks_support ||= MCollective::Util::Choria.new.tasks_support
     end
 
-    def run(task, targets: nil, targets_with_classes: nil, verbose: false)
+    def run(task, targets: nil, targets_with_classes: nil, verbose: false) # rubocop:disable Metrics/AbcSize
       rpc_client.progress = verbose
 
       logger.debug "Running task: '#{task.name}' (targets: #{targets.nil? ? 'all' : targets})"

@@ -25,7 +25,7 @@ module Choria
           ].join("\n")
         end
 
-        def process_error(result)
+        def process_error(result) # rubocop:disable Metrics/AbcSize
           host = "#{pastel.bright_red '⨯'} #{pastel.host(result[:sender])}"
           output = result.dig(:result, '_output')
           error_details = JSON.pretty_generate(result.dig(:result, :_error, :details)).split "\n"

@@ -22,7 +22,7 @@ module Choria
         option :targets_with_classes,
                aliases: ['--targets-with-class', '-C'],
                desc: 'Select the targets which have the specified Puppet classes.'
-        def run(*args)
+        def run(*args) # rubocop:disable Metrics/AbcSize
           input = extract_task_parameters_from_args(args)
 
           raise Thor::Error, 'Task name is required' if args.empty?

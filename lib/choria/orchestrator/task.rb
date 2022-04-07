@@ -29,7 +29,7 @@ module Choria
         metadata['files'].to_json
       end
 
-      def wait
+      def wait # rubocop:disable Metrics/AbcSize
         rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
         rpc_responses_error.each do |res|
           logger.error "Task request failed on '#{res[:senderid]}':\n#{pp res}"
