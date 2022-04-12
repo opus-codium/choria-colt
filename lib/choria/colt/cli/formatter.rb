@@ -36,21 +36,28 @@ module Choria
           host = "#{pastel.bright_red '⨯'} #{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white result[:data][:runtime]}"
           output = result.dig(:result, '_output')
           error_details = JSON.pretty_generate(result.dig(:result, :_error, :details)).split "\n"
-          error_desc = [
+          error_description = [
             "#{pastel.bright_red result.dig(:result, :_error, :kind)}: #{pastel.bright_white result.dig(:result, :_error, :msg)}",
             "  details: #{error_details.shift}",
             error_details.map { |line| "  #{line}" },
           ]
+          output_description = if output.nil? || output.empty?
+                                 []
+                               else
+                                 [
+                                   nil,
+                                   pastel.bright_red('output:'),
+                                   output,
+                                 ]
+                               end
 
           headline = "#{pastel.on_red ' '} "
 
           [
             host,
             [
-              error_desc,
-              nil,
-              pastel.bright_red('output:'),
-              output,
+              error_description,
+              output_description,
             ].flatten.map { |line| "#{headline}#{line}" },
           ].flatten.join("\n")
         end
