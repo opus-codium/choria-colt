@@ -18,7 +18,7 @@ RSpec.describe Choria::Colt::CLI::Formatter do
         it 'format a successful result' do
           expect(formatter.process_result(rpc_result)).to eq(
             <<~OUTPUT.chomp
-              vm012345.example.com
+              vm012345.example.com                                        duration: 0.08s
                 true (GNU coreutils) 8.32
                 Copyright (C) 2020 Free Software Foundation, Inc.
                 License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
@@ -40,7 +40,7 @@ RSpec.describe Choria::Colt::CLI::Formatter do
           expect(formatter.process_result(rpc_result)).to eq(
             # rubocop:disable Layout/TrailingWhitespace
             <<~OUTPUT.chomp
-              ⨯ vm012345.example.com
+              ⨯ vm012345.example.com                                        duration: 0.17s
                 choria.tasks/task-error: The task errored with a code 1
                   details: {
                     "exitcode": 1

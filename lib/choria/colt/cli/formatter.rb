@@ -20,7 +20,7 @@ module Choria
 
         def process_success(result)
           output_lines = [
-            "#{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white result[:data][:runtime]}",
+            "#{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white format('%.2fs', result[:data][:runtime])}",
           ]
 
           output_lines += if result.dig(:result, :_output).nil?
@@ -32,8 +32,8 @@ module Choria
           output_lines.join("\n")
         end
 
-        def process_error(result) # rubocop:disable Metrics/AbcSize
-          host = "#{pastel.bright_red '⨯'} #{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white result[:data][:runtime]}"
+        def process_error(result) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+          host = "#{pastel.bright_red '⨯'} #{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white format('%.2fs', result[:data][:runtime])}"
           output = result.dig(:result, '_output')
           error_details = JSON.pretty_generate(result.dig(:result, :_error, :details)).split "\n"
           error_description = [
