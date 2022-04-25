@@ -10,6 +10,10 @@ AllCops:
 Metrics/AbcSize:
   Max: 20
 
+Metrics/ClassLength:
+  Exclude:
+    - 'lib/choria/colt/cli.rb'
+
 Metrics/MethodLength:
   Max: 20
 

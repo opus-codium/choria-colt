@@ -35,7 +35,7 @@ RSpec.describe Choria::Orchestrator::Task do
     orchestrator
   end
 
-  let(:task) { Choria::Orchestrator::Task.new('example', orchestrator: orchestrator) }
+  let(:task) { Choria::Orchestrator::Task.new(name: 'example', orchestrator: orchestrator) }
 
   context 'waiting the rpc results targeting 4 nodes' do
     let(:rpc_results) do

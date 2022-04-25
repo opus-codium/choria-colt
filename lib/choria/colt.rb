@@ -21,11 +21,23 @@ module Choria
 
     def run_bolt_task(task_name, input: {}, targets: nil, targets_with_classes: nil, &block)
       logger.debug "Instantiate task '#{task_name}' and validate input"
-      task = Choria::Orchestrator::Task.new(task_name, input: input, orchestrator: orchestrator)
+      task = Choria::Orchestrator::Task.new(name: task_name, input: input, orchestrator: orchestrator)
 
       task.on_result(&block) if block_given?
 
       orchestrator.run(task, targets: targets, targets_with_classes: targets_with_classes)
+      task.wait
+      task.results
+    rescue Choria::Orchestrator::Error => e
+      logger.error e.message
+      raise
+    end
+
+    def wait_bolt_task(task_id, &block)
+      task = Choria::Orchestrator::Task.new(id: task_id, orchestrator: orchestrator)
+
+      task.on_result(&block) if block_given?
+
       task.wait
       task.results
     rescue Choria::Orchestrator::Error => e
