@@ -78,6 +78,22 @@ module Choria
           end
         end
 
+        desc 'status <task id>', 'Show task results'
+        long_desc <<~DESC
+          Show results from a previously ran task.
+
+          A task ID is required to request Choria services and retrieve results.
+        DESC
+        def status(task_id)
+          results = colt.wait_bolt_task task_id do |result|
+            $stdout.puts formatter.process_result(result)
+          end
+
+          File.write 'last_run.json', JSON.pretty_generate(results)
+        rescue Choria::Orchestrator::Error => e
+          raise Thor::Error, "#{e.class}: #{e}"
+        end
+
         no_commands do # rubocop:disable Metrics/BlockLength
           def colt
             @colt ||= Choria::Colt.new logger: logger

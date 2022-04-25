@@ -8,17 +8,19 @@ module Choria
     class Task
       class Error < Orchestrator::Error; end
 
-      attr_reader :name, :input, :environment, :rpc_results, :results
+      attr_reader :id, :name, :input, :environment, :rpc_results, :results
       attr_accessor :rpc_responses
 
-      def initialize(name, orchestrator:, input: {}, environment: 'production')
+      def initialize(orchestrator:, id: nil, name: nil, input: {}, environment: 'production')
+        @id = id
         @name = name
         @environment = environment
         @orchestrator = orchestrator
-        @input = default_input.merge input
-
         @results = []
 
+        return if @name.nil?
+
+        @input = default_input.merge input
         logger.debug "Task inputs: #{input}"
         validate_inputs
       end
@@ -32,16 +34,18 @@ module Choria
       end
 
       def wait # rubocop:disable Metrics/AbcSize
-        rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
-        rpc_responses_error.each do |res|
-          logger.error "Task request failed on '#{res[:senderid]}':\n#{pp res}"
+        if @id.nil?
+          rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
+          rpc_responses_error.each do |res|
+            logger.error "Task request failed on '#{res[:senderid]}':\n#{pp res}"
+          end
+
+          task_ids = rpc_responses_ok.map { |res| res[:body][:data][:task_id] }.uniq
+
+          raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
+
+          @id = task_ids.first
         end
-
-        task_ids = rpc_responses_ok.map { |res| res[:body][:data][:task_id] }.uniq
-
-        raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
-
-        @id = task_ids.first
 
         wait_results
       end
@@ -76,7 +80,7 @@ module Choria
       def wait_results
         raise 'Task ID is required!' if @id.nil?
 
-        logger.info 'Waiting task results…'
+        logger.info "Waiting task #{@id} results…"
 
         @results = []
         @rpc_results = []
