@@ -55,29 +55,7 @@ module Choria
     end
 
     def rpc_client
-      @rpc_client ||= rpcclient('bolt_tasks', options: rpc_options)
-    end
-
-    private
-
-    def rpc_options
-      {
-        verbose: false,
-        disctimeout: nil,
-        timeout: 5,
-        config: '/etc/choria/client.conf',
-        collective: 'mcollective',
-        discovery_method: nil,
-        discovery_options: [],
-        filter: {
-          'fact' => [], 'cf_class' => [], 'agent' => [], 'identity' => [], 'compound' => []
-        },
-        progress_bar: false,
-        mcollective_limit_targets: false,
-        batch_size: nil,
-        batch_sleep_time: 1,
-        output_format: :json,
-      }
+      @rpc_client ||= rpcclient('bolt_tasks', options: {})
     end
   end
 end
