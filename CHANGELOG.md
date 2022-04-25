@@ -1,8 +1,17 @@
 # Changelog
 
-## [v0.3.0](https://github.com/opus-codium/choria-colt/tree/v0.3.0) (2022-04-25)
+## [v0.4.0](https://github.com/opus-codium/choria-colt/tree/v0.4.0) (2022-04-25)
 
-[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.3.0...v0.3.0)
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.3.0...v0.4.0)
+
+**Merged pull requests:**
+
+- Spec: Fix tests after duration introduction [\#20](https://github.com/opus-codium/choria-colt/pull/20) ([neomilium](https://github.com/neomilium))
+- CLI: Add `colt task status` subcommand [\#19](https://github.com/opus-codium/choria-colt/pull/19) ([neomilium](https://github.com/neomilium))
+
+## [v0.3.0](https://github.com/opus-codium/choria-colt/tree/v0.3.0) (2022-04-12)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.2.0...v0.3.0)
 
 **Merged pull requests:**
 
@@ -24,10 +33,6 @@
 - Tasks: Autofill default values [\#3](https://github.com/opus-codium/choria-colt/pull/3) ([neomilium](https://github.com/neomilium))
 - CLI: Support filter on Puppet classes [\#2](https://github.com/opus-codium/choria-colt/pull/2) ([neomilium](https://github.com/neomilium))
 - Tasks: Structure data before return results [\#1](https://github.com/opus-codium/choria-colt/pull/1) ([neomilium](https://github.com/neomilium))
-
-## [v0.3.0](https://github.com/opus-codium/choria-colt/tree/v0.3.0) (2022-04-12)
-
-[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.2.0...v0.3.0)
 
 ## [v0.2.0](https://github.com/opus-codium/choria-colt/tree/v0.2.0) (2022-03-03)
 
