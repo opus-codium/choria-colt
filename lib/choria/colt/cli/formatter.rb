@@ -19,17 +19,19 @@ module Choria
         end
 
         def process_success(result)
-          output_lines = [
-            "#{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white format('%.2fs', result[:data][:runtime])}",
-          ]
+          host = "#{pastel.bright_green '√'} #{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white format('%.2fs', result[:data][:runtime])}"
 
-          output_lines += if result.dig(:result, :_output).nil?
-                            JSON.pretty_generate(result[:result]).split("\n").map { |line| "  #{line}" }
-                          else
-                            result.dig(:result, :_output).map { |line| "  #{line}" }
-                          end
+          output = if result.dig(:result, :_output).nil?
+                     JSON.pretty_generate(result[:result]).split("\n")
+                   else
+                     result.dig(:result, :_output)
+                   end
 
-          output_lines.join("\n")
+          headline = "#{pastel.on_green ' '} "
+          [
+            host,
+            output.map { |line| "#{headline}#{line}" },
+          ].flatten.join("\n")
         end
 
         def process_error(result) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
