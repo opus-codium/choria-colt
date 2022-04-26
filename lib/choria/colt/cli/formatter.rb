@@ -5,6 +5,33 @@ module Choria
   class Colt
     class CLI < Thor
       class Formatter
+        module Result
+          def sender
+            self[:sender]
+          end
+
+          def exitcode
+            dig(:data, :exitcode)
+          end
+
+          def ok?
+            exitcode&.zero?
+          end
+
+          def runtime
+            dig(:data, :runtime)
+          end
+
+          # CLI
+          def output
+            if dig(:result, :_output).nil?
+              JSON.pretty_generate(self[:result]).split("\n")
+            else
+              dig(:result, :_output)
+            end
+          end
+        end
+
         attr_reader :pastel
 
         def initialize(colored:)
@@ -13,29 +40,24 @@ module Choria
         end
 
         def process_result(result)
-          return process_error(result) unless result.dig(:data, :exitcode)&.zero?
+          result.extend Formatter::Result
+          return process_error(result) unless result.ok?
 
           process_success(result)
         end
 
         def process_success(result)
-          host = "#{pastel.bright_green '√'} #{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white format('%.2fs', result[:data][:runtime])}"
-
-          output = if result.dig(:result, :_output).nil?
-                     JSON.pretty_generate(result[:result]).split("\n")
-                   else
-                     result.dig(:result, :_output)
-                   end
-
+          host = format_host(result, "#{pastel.bright_green '√'} ")
           headline = "#{pastel.on_green ' '} "
+
           [
             host,
-            output.map { |line| "#{headline}#{line}" },
+            result.output.map { |line| "#{headline}#{line}" },
           ].flatten.join("\n")
         end
 
         def process_error(result) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-          host = "#{pastel.bright_red '⨯'} #{pastel.host(result[:sender]).ljust(60, ' ')}duration: #{pastel.bright_white format('%.2fs', result[:data][:runtime])}"
+          host = format_host(result, "#{pastel.bright_red '⨯'} ")
           output = result.dig(:result, '_output')
           error_details = JSON.pretty_generate(result.dig(:result, :_error, :details)).split "\n"
           error_description = [
@@ -62,6 +84,16 @@ module Choria
               output_description,
             ].flatten.map { |line| "#{headline}#{line}" },
           ].flatten.join("\n")
+        end
+
+        private
+
+        def format_duration(result)
+          result.runtime.nil? ? '' : "duration: #{pastel.bright_white format('%.2fs', result.runtime)}"
+        end
+
+        def format_host(result, headline)
+          "#{headline}#{pastel.host(result.sender).ljust(60, ' ')}#{format_duration(result)}"
         end
       end
     end
