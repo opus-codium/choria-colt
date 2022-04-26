@@ -8,7 +8,21 @@ module Choria
     class Task
       class Error < Orchestrator::Error; end
 
-      attr_reader :id, :name, :input, :environment, :rpc_results, :results
+      class ResultSet < Array
+        def initialize(on_result:)
+          @results = []
+          @on_result = on_result
+        end
+
+        def integrate_result(result)
+          structured_result = Choria::Colt::DataStructurer.structure(result).with_indifferent_access
+          @results << structured_result
+          # TODO: Save "last_run.json" results here…
+          @on_result&.call(structured_result)
+        end
+      end
+
+      attr_reader :id, :name, :input, :environment
       attr_accessor :rpc_responses
 
       def initialize(orchestrator:, id: nil, name: nil, input: {}, environment: 'production')
@@ -16,7 +30,6 @@ module Choria
         @name = name
         @environment = environment
         @orchestrator = orchestrator
-        @results = []
 
         return if @name.nil?
 
@@ -33,6 +46,10 @@ module Choria
         metadata['files'].to_json
       end
 
+      def results
+        result_set.results
+      end
+
       def wait # rubocop:disable Metrics/AbcSize
         if @id.nil?
           rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
@@ -40,8 +57,10 @@ module Choria
             logger.error "Task request failed on '#{res[:senderid]}':\n#{pp res}"
           end
 
-          task_ids = rpc_responses_ok.map { |res| res[:body][:data][:task_id] }.uniq
+          @pending_targets = rpc_responses_ok.map { |res| res[:senderid] }
+          return if @pending_targets.empty?
 
+          task_ids = rpc_responses_ok.map { |res| res[:body][:data][:task_id] }.uniq
           raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
 
           @id = task_ids.first
@@ -58,23 +77,20 @@ module Choria
 
       private
 
+      def result_set
+        @result_set ||= ResultSet.new(on_result: @on_result)
+      end
+
       def rpc_results=(results)
-        new_result_hosts = (results.map { |res| res[:sender] }) - (@results.map { |res| res[:sender] })
+        pending_results, completed_results = results.partition { |res| res[:data][:exitcode] == -1 }
+        @pending_targets ||= pending_results.map { |res| res[:sender] }
 
-        new_result_hosts.each do |host|
-          result = results.find { |res| res[:sender] == host }
-
-          next unless result[:data][:exitcode] != -1
-
-          logger.debug "New result for task ##{@id}: #{result}"
-          structured_result = Choria::Colt::DataStructurer.structure(result).with_indifferent_access
-
-          @on_result&.call(structured_result)
-
-          @results << structured_result
+        new_results = completed_results.select { |res| @pending_targets.include? res[:sender] }
+        new_results.each do |res|
+          logger.debug "New result for task ##{@id}: #{res}"
+          result_set.integrate_result(res)
+          @pending_targets.delete res[:sender]
         end
-
-        @rpc_results = results
       end
 
       def wait_results
@@ -82,7 +98,6 @@ module Choria
 
         logger.info "Waiting task #{@id} results…"
 
-        @results = []
         @rpc_results = []
 
         loop do
@@ -93,11 +108,7 @@ module Choria
       end
 
       def terminated?
-        @rpc_results.each do |result|
-          return false if result[:data][:exitcode] == -1
-        end
-
-        true
+        @pending_targets.empty?
       end
 
       def _metadata
