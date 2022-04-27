@@ -8,10 +8,18 @@ module Choria
     class Task
       class Error < Orchestrator::Error; end
 
-      class ResultSet < Array
+      class ResultSet
+        attr_reader :results
+
         def initialize(on_result:)
           @results = []
           @on_result = on_result
+        end
+
+        def integrate_rpc_error(rpc_error)
+          result = rpc_error[:body]
+          result[:sender] = rpc_error[:senderid]
+          integrate_result(result)
         end
 
         def integrate_result(result)
@@ -54,7 +62,8 @@ module Choria
         if @id.nil?
           rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
           rpc_responses_error.each do |res|
-            logger.error "Task request failed on '#{res[:senderid]}':\n#{pp res}"
+            logger.error "Task request failed on '#{res[:senderid]}' (RPC error)"
+            result_set.integrate_rpc_error(res)
           end
 
           @pending_targets = rpc_responses_ok.map { |res| res[:senderid] }
