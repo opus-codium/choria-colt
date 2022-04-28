@@ -6,6 +6,24 @@ module Choria
     class Error < StandardError; end
     class DiscoverError < Error; end
 
+    module RpcResponse
+      def sender
+        self[:senderid]
+      end
+
+      def rpc_error?
+        !rpc_success?
+      end
+
+      def rpc_success?
+        [0, 1].include? self[:body][:statuscode]
+      end
+
+      def task_id
+        self[:body][:data][:task_id]
+      end
+    end
+
     include MCollective::RPC
 
     attr_reader :logger
@@ -33,25 +51,9 @@ module Choria
       end
 
       logger.info 'Discovering targets…'
-      raise DiscoverError, 'No request sent, no node discovered' if rpc_client.discover.size.zero?
+      raise DiscoverError, 'No requests sent, no nodes discovered' if rpc_client.discover.size.zero?
 
-      logger.info "Downloading task '#{task.name}' on #{rpc_client.discover.size} nodes…"
-      rpc_client.download(task: task.name, files: task.files, verbose: verbose)
-
-      responses = []
-      logger.info "Starting task '#{task.name}' on #{rpc_client.discover.size} nodes…"
-      rpc_client.run_no_wait(task: task.name, files: task.files, input: task.input.to_json, verbose: verbose) do |response|
-        logger.debug "  Response: '#{response}'"
-        responses << response
-      end
-
-      # TODO: Include stats in logs when logger will be available (see MCollective::RPC#printrpcstats)
-
-      task.rpc_responses = responses
-    end
-
-    def validate_rpc_result(result)
-      raise Error, "The RPC agent returned an error: #{result[:statusmsg]}" unless (result[:statuscode]).zero?
+      task.run
     end
 
     def rpc_client

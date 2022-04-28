@@ -73,14 +73,16 @@ RSpec.describe Choria::Orchestrator::Task do
     end
   end
 
-  context 'receiving rpc errors during #wait' do
+  context 'receiving RPC errors' do
     let(:dummy) { double('dummy') }
 
     it 'produces #results with errors' do
       task.on_result { dummy.on_result }
       expect(dummy).to receive(:on_result).exactly(8).times
-      task.rpc_responses = load_from_rpc_responses_file 'errors'
-      task.wait
+      task.instance_variable_set :@pending_targets, []
+      load_from_rpc_responses_file('errors').each do |rpc_response|
+        task.send :process_rpc_response, rpc_response
+      end
     end
   end
 end

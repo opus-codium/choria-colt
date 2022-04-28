@@ -1,4 +1,4 @@
-require 'choria/colt/data_structurer'
+require_relative 'task/result_set'
 
 require 'active_support'
 require 'active_support/core_ext/hash/indifferent_access'
@@ -7,38 +7,15 @@ module Choria
   class Orchestrator
     class Task
       class Error < Orchestrator::Error; end
-
-      class ResultSet
-        attr_reader :results
-
-        def initialize(on_result:)
-          @results = []
-          @on_result = on_result
-        end
-
-        def integrate_rpc_error(rpc_error)
-          result = rpc_error[:body]
-          result[:sender] = rpc_error[:senderid]
-          integrate_result(result)
-        end
-
-        def integrate_result(result)
-          structured_result = Choria::Colt::DataStructurer.structure(result).with_indifferent_access
-          @results << structured_result
-          # TODO: Save "last_run.json" results here…
-          @on_result&.call(structured_result)
-        end
-      end
+      class NoNodesLeftError < Error; end
 
       attr_reader :id, :name, :input, :environment
-      attr_accessor :rpc_responses
 
       def initialize(orchestrator:, id: nil, name: nil, input: {}, environment: 'production')
         @id = id
         @name = name
         @environment = environment
         @orchestrator = orchestrator
-
         return if @name.nil?
 
         @input = default_input.merge input
@@ -58,30 +35,27 @@ module Choria
         result_set.results
       end
 
-      def wait # rubocop:disable Metrics/AbcSize
-        if @id.nil?
-          rpc_responses_ok, rpc_responses_error = rpc_responses.partition { |res| (res[:body][:statuscode]).zero? }
-          rpc_responses_error.each do |res|
-            logger.error "Task request failed on '#{res[:senderid]}' (RPC error)"
-            result_set.integrate_rpc_error(res)
-          end
+      def run
+        raise Error, 'Unable to run a task by ID' if name.nil?
 
-          @pending_targets = rpc_responses_ok.map { |res| res[:senderid] }
-          return if @pending_targets.empty?
+        @pending_targets = rpc_client.discover
+        _download
+        _run_no_wait
+      end
 
-          task_ids = rpc_responses_ok.map { |res| res[:body][:data][:task_id] }.uniq
-          raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
+      def wait
+        raise Error, 'Task ID is required!' if @id.nil?
 
-          @id = task_ids.first
+        logger.info "Waiting task #{@id} results…"
+        @rpc_results = []
+        loop do
+          self.rpc_results = rpc_client.task_status(task_id: @id).map(&:results)
+          break if @pending_targets.empty?
         end
-
-        wait_results
       end
 
       def on_result(&block)
-        @on_result = lambda { |result|
-          block.call(result)
-        }
+        @on_result = ->(result) { block.call(result) }
       end
 
       private
@@ -102,22 +76,37 @@ module Choria
         end
       end
 
-      def wait_results
-        raise 'Task ID is required!' if @id.nil?
+      def process_rpc_response(rpc_response)
+        rpc_response.extend Orchestrator::RpcResponse
+        logger.debug "  RPC Response: '#{rpc_response}'"
+        return unless rpc_response.rpc_error?
 
-        logger.info "Waiting task #{@id} results…"
-
-        @rpc_results = []
-
-        loop do
-          self.rpc_results = @orchestrator.rpc_client.task_status(task_id: @id).map(&:results)
-
-          break if terminated?
-        end
+        @pending_targets.delete rpc_response.sender
+        result_set.integrate_rpc_error(rpc_response)
       end
 
-      def terminated?
-        @pending_targets.empty?
+      def _download
+        logger.info "Downloading task '#{name}' on #{rpc_client.discover.size} nodes…"
+        rpc_client.download(task: name, files: files, verbose: false) do |rpc_response|
+          process_rpc_response(rpc_response)
+        end
+
+        raise NoNodesLeftError, "No nodes left to continue after 'download' action" if @pending_targets.empty?
+      end
+
+      def _run_no_wait # rubocop:disable Metrics/AbcSize
+        logger.info "Starting task '#{name}' on #{rpc_client.discover.size} nodes…"
+        task_ids = []
+        rpc_client.run_no_wait(task: name, files: files, input: input.to_json, verbose: false) do |rpc_response|
+          process_rpc_response(rpc_response)
+          task_ids << rpc_response.task_id
+        end
+        raise NoNodesLeftError, "No nodes left to continue after 'run_no_wait' action" if @pending_targets.empty?
+
+        task_ids.uniq!
+        raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
+
+        @id = task_ids.first
       end
 
       def _metadata
@@ -141,6 +130,10 @@ module Choria
 
       def logger
         @orchestrator.logger
+      end
+
+      def rpc_client
+        @orchestrator.rpc_client
       end
     end
   end

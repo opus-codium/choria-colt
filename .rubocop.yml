@@ -11,6 +11,7 @@ Metrics/AbcSize:
   Max: 20
 
 Metrics/ClassLength:
+  Max: 120
   Exclude:
     - 'lib/choria/colt/cli.rb'
 
