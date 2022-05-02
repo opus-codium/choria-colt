@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.5.0](https://github.com/opus-codium/choria-colt/tree/v0.5.0) (2022-05-02)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.4.0...v0.5.0)
+
+**Merged pull requests:**
+
+- Process and display RPC errors like execution errors [\#24](https://github.com/opus-codium/choria-colt/pull/24) ([neomilium](https://github.com/neomilium))
+- CLI: Be more green\(washing\) [\#23](https://github.com/opus-codium/choria-colt/pull/23) ([neomilium](https://github.com/neomilium))
+- CLI: Support @file notation on --targets option [\#22](https://github.com/opus-codium/choria-colt/pull/22) ([neomilium](https://github.com/neomilium))
+- Do not pass explicit options to rpcclient [\#21](https://github.com/opus-codium/choria-colt/pull/21) ([smortex](https://github.com/smortex))
+
 ## [v0.4.0](https://github.com/opus-codium/choria-colt/tree/v0.4.0) (2022-04-25)
 
 [Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.3.0...v0.4.0)
