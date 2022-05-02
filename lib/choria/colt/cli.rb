@@ -27,6 +27,7 @@ module Choria
                desc: 'Select the targets which have the specified Puppet classes.'
         def run(*args) # rubocop:disable Metrics/AbcSize
           input = extract_task_parameters_from_args(args)
+          targets = extract_targets_from_options
 
           raise Thor::Error, 'Task name is required' if args.empty?
           raise Thor::Error, "Too many arguments: #{args}" unless args.count == 1
@@ -35,8 +36,7 @@ module Choria
 
           task_name = args.shift
 
-          targets = options['targets']&.split(',')
-          targets = nil if options['targets'] == 'all'
+          logger.debug "Targets: #{targets}"
 
           targets_with_classes = options['targets_with_classes']&.split(',')
 
@@ -128,6 +128,16 @@ module Choria
 
               [key, value]
             end.to_h
+          end
+
+          def extract_targets_from_options
+            return nil if options['targets'] == 'all'
+
+            targets = options['targets']&.split(',')
+            targets&.map do |t|
+              t = File.read(t.sub(/^@/, '')).lines.map(&:strip) if t.start_with? '@'
+              t
+            end&.flatten
           end
 
           def show_tasks_summary(tasks)
