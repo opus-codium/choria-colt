@@ -41,9 +41,21 @@ module Choria
 
         def process_result(result)
           result.extend Formatter::Result
-          return process_error(result) unless result.ok?
 
-          process_success(result)
+          case result[:statuscode]
+          when 0
+            # 0 	OK
+            process_success(result)
+          when 1
+            # 1 	OK, failed. All the data parsed ok, we have a action matching the request but the requested action could not be completed. 	RPCAborted
+            process_error(result) # unless result.ok?
+          else
+            # 2 	Unknown action 	UnknownRPCAction
+            # 3 	Missing data 	MissingRPCData
+            # 4 	Invalid data 	InvalidRPCData
+            # 5 	Other error
+            process_rpc_error(result)
+          end
         end
 
         def process_success(result)
@@ -84,6 +96,16 @@ module Choria
               output_description,
             ].flatten.map { |line| "#{headline}#{line}" },
           ].flatten.join("\n")
+        end
+
+        def process_rpc_error(result)
+          host = "#{pastel.bright_red '⨯'} #{pastel.host(result.sender)}"
+          headline = "#{pastel.on_red ' '} "
+
+          [
+            host,
+            "#{headline}#{pastel.bright_red "RPC error (#{result[:statuscode]})"}: #{pastel.bright_white result[:statusmsg]}",
+          ].join("\n")
         end
 
         private

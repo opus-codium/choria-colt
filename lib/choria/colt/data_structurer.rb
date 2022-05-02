@@ -2,6 +2,8 @@ module Choria
   class Colt
     module DataStructurer
       def self.structure(res) # rubocop:disable Metrics/AbcSize
+        return res unless [0, 1].include? res[:statuscode]
+
         # data.stdout seems to always be JSON, so parse it once.
         res[:result] = JSON.parse res[:data][:stdout]
         res[:data].delete :stdout

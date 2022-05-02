@@ -45,8 +45,8 @@ module Choria
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
-        rescue Choria::Orchestrator::Error => e
-          raise Thor::Error, "#{e.class}: #{e}"
+        rescue Choria::Orchestrator::Error
+          # This error is already logged and displayed.
         end
 
         desc 'show [task name] [options]', 'Show available tasks and task documentation'
@@ -90,8 +90,8 @@ module Choria
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
-        rescue Choria::Orchestrator::Error => e
-          raise Thor::Error, "#{e.class}: #{e}"
+        rescue Choria::Orchestrator::Error
+          # This error is already logged and displayed.
         end
 
         no_commands do # rubocop:disable Metrics/BlockLength
