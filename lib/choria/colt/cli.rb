@@ -141,7 +141,7 @@ module Choria
           end
 
           def extract_targets_from_options
-            return nil if options['targets'] == 'all'
+            return nil if options['targets'] == ':all'
 
             targets = options['targets']&.split(',')
             targets&.map do |t|
