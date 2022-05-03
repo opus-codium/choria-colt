@@ -9,6 +9,15 @@ module Choria
   class Colt
     class CLI < Thor
       class Tasks < Thor
+        def self.define_targets_and_filters_options
+          option :targets,
+                 aliases: ['--target', '-t'],
+                 desc: 'Identifies the targets of the command.'
+          option :targets_with_classes,
+                 aliases: ['--targets-with-class', '-C'],
+                 desc: 'Select the targets which have the specified Puppet classes.'
+        end
+
         class_option :log_level,
                      desc: 'Set log level for CLI',
                      default: 'info'
@@ -19,26 +28,16 @@ module Choria
 
           Parameters take the form parameter=value.
         DESC
-        option :targets,
-               aliases: ['--target', '-t'],
-               desc: 'Identifies the targets of the command.'
-        option :targets_with_classes,
-               aliases: ['--targets-with-class', '-C'],
-               desc: 'Select the targets which have the specified Puppet classes.'
-        def run(*args) # rubocop:disable Metrics/AbcSize
-          input = extract_task_parameters_from_args(args)
-          targets = extract_targets_from_options
-
+        define_targets_and_filters_options
+        def run(*args)
           raise Thor::Error, 'Task name is required' if args.empty?
-          raise Thor::Error, "Too many arguments: #{args}" unless args.count == 1
 
-          raise Thor::Error, 'Flag --targets or --targets-with-class is required' if options['targets'].nil? && options['targets_with_classes'].nil?
+          input = extract_task_parameters_from_args(args)
+          raise Thor::Error, "Too many arguments: #{args}" unless args.count == 1
 
           task_name = args.shift
 
-          logger.debug "Targets: #{targets}"
-
-          targets_with_classes = options['targets_with_classes']&.split(',')
+          targets, targets_with_classes = extract_targets_and_filters_from_options
 
           results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes do |result|
             $stdout.puts formatter.process_result(result)
@@ -128,6 +127,15 @@ module Choria
 
               [key, value]
             end.to_h
+          end
+
+          def extract_targets_and_filters_from_options
+            raise Thor::Error, 'Flag --targets or --targets-with-class is required' if options['targets'].nil? && options['targets_with_classes'].nil?
+
+            targets = extract_targets_from_options
+            targets_with_classes = options['targets_with_classes']&.split(',')
+
+            [targets, targets_with_classes]
           end
 
           def extract_targets_from_options
