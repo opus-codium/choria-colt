@@ -65,8 +65,8 @@ module Choria
       end
 
       def rpc_results=(results)
-        pending_results, completed_results = results.partition { |res| res[:data][:exitcode] == -1 }
-        @pending_targets ||= pending_results.map { |res| res[:sender] }
+        completed_results = results.reject { |res| res[:data][:exitcode] == -1 }
+        @pending_targets ||= results.map { |res| res[:sender] }
 
         new_results = completed_results.select { |res| @pending_targets.include? res[:sender] }
         new_results.each do |res|
