@@ -39,10 +39,16 @@ module Choria
       @tasks_support ||= MCollective::Util::Choria.new.tasks_support
     end
 
-    def run(task, targets: nil, targets_with_classes: nil, verbose: false) # rubocop:disable Metrics/AbcSize
+    def run(task, targets: nil, targets_with_classes: nil, verbose: false)
       rpc_client.progress = verbose
+      discover(targets: targets, targets_with_classes: targets_with_classes)
+      raise DiscoverError, 'No requests sent, no nodes discovered' if rpc_client.discover.size.zero?
 
-      logger.debug "Running task: '#{task.name}' (targets: #{targets.nil? ? 'all' : targets})"
+      task.run
+    end
+
+    def discover(targets: nil, targets_with_classes: nil)
+      logger.debug "Targets: #{targets.nil? ? 'all' : targets})"
       targets&.each { |target| rpc_client.identity_filter target }
 
       unless targets_with_classes.nil?
@@ -51,9 +57,7 @@ module Choria
       end
 
       logger.info 'Discovering targets…'
-      raise DiscoverError, 'No requests sent, no nodes discovered' if rpc_client.discover.size.zero?
-
-      task.run
+      rpc_client.discover
     end
 
     def rpc_client

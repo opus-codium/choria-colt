@@ -33,11 +33,11 @@ module Choria
       raise
     end
 
-    def wait_bolt_task(task_id, &block)
+    def wait_bolt_task(task_id, targets: nil, targets_with_classes: nil, &block)
+      orchestrator.discover(targets: targets, targets_with_classes: targets_with_classes)
+
       task = Choria::Orchestrator::Task.new(id: task_id, orchestrator: orchestrator)
-
       task.on_result(&block) if block_given?
-
       task.wait
       task.results
     rescue Choria::Orchestrator::Error => e
