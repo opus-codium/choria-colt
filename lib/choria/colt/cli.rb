@@ -36,7 +36,6 @@ module Choria
           raise Thor::Error, "Too many arguments: #{args}" unless args.count == 1
 
           task_name = args.shift
-
           targets, targets_with_classes = extract_targets_and_filters_from_options
 
           results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes do |result|
@@ -83,8 +82,11 @@ module Choria
 
           A task ID is required to request Choria services and retrieve results.
         DESC
+        define_targets_and_filters_options
         def status(task_id)
-          results = colt.wait_bolt_task task_id do |result|
+          targets, targets_with_classes = extract_targets_and_filters_from_options
+
+          results = colt.wait_bolt_task(task_id, targets: targets, targets_with_classes: targets_with_classes) do |result|
             $stdout.puts formatter.process_result(result)
           end
 
