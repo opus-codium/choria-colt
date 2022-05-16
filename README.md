@@ -51,8 +51,8 @@ To install this gem onto your local machine, run `bundle exec rake install`.
 
 
 To release a new version:
-  1. update the version number in `version.rb`
-  1. generate CHANGELOG.md with `bundle exec rake changelog`
+  1. update the version number in `lib/choria/colt/version.rb`
+  1. generate `CHANGELOG.md` with `bundle exec rake changelog`
   1. commit changes
   1. run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 

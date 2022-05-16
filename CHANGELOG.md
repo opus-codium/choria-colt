@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.6.0](https://github.com/opus-codium/choria-colt/tree/v0.6.0) (2022-05-16)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.5.1...v0.6.0)
+
+**Merged pull requests:**
+
+- Allow to run a task from any puppet environment [\#28](https://github.com/opus-codium/choria-colt/pull/28) ([neomilium](https://github.com/neomilium))
+- CLI: Use symbol notation to target `:all` nodes [\#27](https://github.com/opus-codium/choria-colt/pull/27) ([neomilium](https://github.com/neomilium))
+- CLI: Allow targeting on task status requests [\#26](https://github.com/opus-codium/choria-colt/pull/26) ([neomilium](https://github.com/neomilium))
+- Fix `task status` command [\#25](https://github.com/opus-codium/choria-colt/pull/25) ([neomilium](https://github.com/neomilium))
+
+## [v0.5.1](https://github.com/opus-codium/choria-colt/tree/v0.5.1) (2022-05-02)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.5.0...v0.5.1)
+
 ## [v0.5.0](https://github.com/opus-codium/choria-colt/tree/v0.5.0) (2022-05-02)
 
 [Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.4.0...v0.5.0)
