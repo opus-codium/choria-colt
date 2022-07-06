@@ -44,7 +44,7 @@ module Choria
 
           environment = options['environment']
           results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes, environment: environment do |result|
-            $stdout.puts formatter.process_result(result)
+            $stdout.puts formatter.format(result)
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
@@ -91,8 +91,11 @@ module Choria
           targets, targets_with_classes = extract_targets_and_filters_from_options
 
           results = colt.wait_bolt_task(task_id, targets: targets, targets_with_classes: targets_with_classes) do |result|
-            $stdout.puts formatter.process_result(result)
+            $stdout.puts formatter.format(result)
           end
+
+          puts "\n\nSummary:"
+          summarize(results)
 
           File.write 'last_run.json', JSON.pretty_generate(results)
         rescue Choria::Orchestrator::Error
@@ -183,6 +186,20 @@ module Choria
               output += "  Default: #{metadata['default']}" unless metadata['default'].nil?
               output
             end.join "\n"
+          end
+
+          def summarize(results)
+            results_grouped_by_result_content = results.group_by { |result| result[:result] }
+            results_grouped_by_result_content.each do |_content, results|
+              # Display each host
+              results.each do |result|
+                $stdout.puts formatter.format(result).host
+              end
+              # Display the result content
+              content = formatter.format(results.first).content
+              content = pastel.bright_white '(no output)' if content.nil? || content.empty?
+              $stdout.puts content
+            end
           end
 
           def pastel
