@@ -66,6 +66,9 @@ module Choria
     def task_metadata(name, environment)
       logger.debug "Fetching metadata for task '#{name}' (environment: '#{environment}')"
 
+      # FIXME: Remove this workaround when the Puppet bug is fixed
+      return { 'metadata' => { 'private' => true } } if ['application::utils'].include? name
+
       orchestrator.tasks_support.task_metadata(name, environment)
     end
   end
