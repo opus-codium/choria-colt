@@ -68,10 +68,9 @@ module Choria
                default: 'production'
         def show(*tasks_names)
           environment = options['environment']
-          cache_directory = File.expand_path('.cache/colt/tasks')
-          FileUtils.mkdir_p cache_directory
-          cache = Cache.new(path: File.join(cache_directory, "#{environment}.yaml"))
 
+          require 'active_support/cache/file_store'
+          cache = ActiveSupport::Cache::FileStore.new File.expand_path('~/.cache/colt/tasks')
           tasks = colt.tasks(environment: environment, cache: cache)
 
           if tasks_names.empty?
