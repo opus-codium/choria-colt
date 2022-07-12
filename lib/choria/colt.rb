@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require 'choria/colt/cache'
 require 'choria/colt/version'
 require 'choria/orchestrator'
 require 'choria/orchestrator/task'
 
 require 'logger'
+
+require 'active_support/cache/memory_store'
 
 module Choria
   class Colt
@@ -45,32 +46,27 @@ module Choria
       raise
     end
 
-    def tasks(environment:, cache: nil)
+    def tasks(environment:, cache: nil, force_cache_refresh: false)
+      cache ||= ActiveSupport::Cache::MemoryStore.new
+
       tasks_names = orchestrator.tasks_support.tasks(environment).map do |task|
         task['name']
       end
 
-      return tasks_metadata(tasks_names, environment) if cache.nil?
-
-      cached_tasks = cache.load
-      return cached_tasks if cache.clean? && cached_tasks.keys.sort == tasks_names.sort
-
-      updated_tasks = tasks_metadata(tasks_names, environment)
-      cache.save updated_tasks
-
-      updated_tasks
+      tasks_names.map do |task_name|
+        metadata = cache.fetch(task_name, force: force_cache_refresh) do
+          task_metadata(task_name, environment)
+        end
+        [task_name, metadata]
+      end.to_h
     end
 
     private
 
-    def tasks_metadata(tasks, environment)
-      logger.info "Fetching metadata for tasks (environment: '#{environment}')"
+    def task_metadata(name, environment)
+      logger.debug "Fetching metadata for task '#{name}' (environment: '#{environment}')"
 
-      tasks.map do |task|
-        logger.debug "Fetching metadata for task '#{task}' (environment: '#{environment}')"
-        metadata = orchestrator.tasks_support.task_metadata(task, environment)
-        [task, metadata]
-      end.to_h
+      orchestrator.tasks_support.task_metadata(name, environment)
     end
   end
 end
