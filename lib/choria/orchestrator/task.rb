@@ -103,7 +103,8 @@ module Choria
         end
         raise NoNodesLeftError, "No nodes left to continue after 'run_no_wait' action" if @pending_targets.empty?
 
-        task_ids.compact!.uniq!
+        task_ids.compact!
+        task_ids.uniq!
         raise NotImplementedError, "Multiple task IDs: #{task_ids}" unless task_ids.count == 1
 
         @id = task_ids.first
