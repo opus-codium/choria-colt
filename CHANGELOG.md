@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.7.0](https://github.com/opus-codium/choria-colt/tree/v0.7.0) (2022-09-26)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.6.0...v0.7.0)
+
+**Fixed bugs:**
+
+- Task: Fix IDs array processing [\#30](https://github.com/opus-codium/choria-colt/pull/30) ([neomilium](https://github.com/neomilium))
+
+**Merged pull requests:**
+
+- Use ActiveSuport::Cache instead our own Cache mecanism for tasks metadata [\#31](https://github.com/opus-codium/choria-colt/pull/31) ([neomilium](https://github.com/neomilium))
+- Improve robustness when nodes are unhealthy [\#29](https://github.com/opus-codium/choria-colt/pull/29) ([neomilium](https://github.com/neomilium))
+
 ## [v0.6.0](https://github.com/opus-codium/choria-colt/tree/v0.6.0) (2022-05-16)
 
 [Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.5.1...v0.6.0)
