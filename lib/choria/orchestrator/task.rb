@@ -3,6 +3,8 @@ require_relative 'task/result_set'
 require 'active_support'
 require 'active_support/core_ext/hash/indifferent_access'
 
+require 'choria/colt/debugger'
+
 module Choria
   class Orchestrator
     class Task
@@ -64,13 +66,23 @@ module Choria
         @result_set ||= ResultSet.new(on_result: @on_result)
       end
 
+      def log_new_result(res)
+        if Colt::Debugger.enabled
+          debug_file = Colt::Debugger.save_file(result_set: @id, filename: "#{Time.now.iso8601}-#{res[:sender]}.json", content: JSON.pretty_generate(res))
+          logger.debug "New result for task ##{@id} saved in '#{debug_file}'"
+        else
+          logger.debug "New result for task ##{@id} from '#{res[:sender]}'"
+        end
+      end
+
       def rpc_results=(results)
         completed_results = results.reject { |res| res[:data][:exitcode] == -1 }
         @pending_targets ||= results.map { |res| res[:sender] }
 
         new_results = completed_results.select { |res| @pending_targets.include? res[:sender] }
         new_results.each do |res|
-          logger.debug "New result for task ##{@id}: #{res}"
+          log_new_result res
+
           result_set.integrate_result(res)
           @pending_targets.delete res[:sender]
         end

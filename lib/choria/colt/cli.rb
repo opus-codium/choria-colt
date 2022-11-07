@@ -111,6 +111,7 @@ module Choria
                 [:stream, { output: File.open('colt-debug.log', 'a'), level: :debug }],
               ]
               config.metadata = %i[date time]
+              Choria::Colt::Debugger.enabled = true
             end
           end
 
