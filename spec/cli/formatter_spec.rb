@@ -25,21 +25,19 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       # "/bin/true --version"
       let(:result_set_name) { 'exec__bin_true__version' }
 
-      describe '#format formats the result' do
-        it 'formats a successful result' do
-          expect(formatter.format(first_result).to_s).to eq(
-            <<~OUTPUT.chomp
-              √ vm001.example.com                                           duration: 0.14s
-                true (GNU coreutils) 8.32
-                Copyright (C) 2020 Free Software Foundation, Inc.
-                License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
-                This is free software: you are free to change and redistribute it.
-                There is NO WARRANTY, to the extent permitted by law.
-              #{'  '}
-                Written by Jim Meyering.
-            OUTPUT
-          )
-        end
+      it 'formats a successful result' do
+        expect(formatter.format(first_result).to_s).to eq(
+          <<~OUTPUT.chomp
+            √ vm001.example.com                                           duration: 0.14s
+              true (GNU coreutils) 8.32
+              Copyright (C) 2020 Free Software Foundation, Inc.
+              License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+              This is free software: you are free to change and redistribute it.
+              There is NO WARRANTY, to the extent permitted by law.
+            #{'  '}
+              Written by Jim Meyering.
+          OUTPUT
+        )
       end
     end
 
@@ -47,38 +45,33 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       # "/bin/false --version"
       let(:result_set_name) { 'exec__bin_false__version' }
 
-      describe '#format formats the result' do
-        it 'format an error result' do
-          expect(formatter.format(first_result).to_s).to eq(
-            # rubocop:disable Layout/TrailingWhitespace
-            <<~OUTPUT.chomp
-              ⨯ vm001.example.com                                           duration: 0.17s
-                choria.tasks/task-error: The task errored with a code 1
-                  details: {
-                    "exitcode": 1
-                  }
-                
-                output:
-                false (GNU coreutils) 8.32
-                Copyright (C) 2020 Free Software Foundation, Inc.
-                License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
-                This is free software: you are free to change and redistribute it.
-                There is NO WARRANTY, to the extent permitted by law.
-              #{'  '}
-                Written by Jim Meyering.
-            OUTPUT
-            # rubocop:enable Layout/TrailingWhitespace
-          )
-        end
+      it 'formats an error result' do
+        expect(formatter.format(first_result).to_s).to eq(
+          <<~OUTPUT.chomp
+            ⨯ vm001.example.com                                           duration: 0.17s
+              choria.tasks/task-error: The task errored with a code 1
+                details: {
+                  "exitcode": 1
+                }
+            #{'  '}
+              output:
+              false (GNU coreutils) 8.32
+              Copyright (C) 2020 Free Software Foundation, Inc.
+              License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+              This is free software: you are free to change and redistribute it.
+              There is NO WARRANTY, to the extent permitted by law.
+            #{'  '}
+              Written by Jim Meyering.
+          OUTPUT
+        )
       end
     end
-
 
     context 'when executing an invalid command' do
       # "/bin/invalid_command"
       let(:result_set_name) { 'exec__invalid_command' }
 
-      it 'format an error result' do
+      it 'formats an error result' do
         expect(formatter.format(first_result).to_s).to eq(
           <<~OUTPUT.chomp
             ⨯ vm001.example.com                                           duration: 0.14s
@@ -95,21 +88,19 @@ RSpec.describe Choria::Colt::CLI::Formatter do
               	from /opt/puppetlabs/mcollective/tasks-spool/680f0cfb902f5e728fb1ab9bd3c539a2/files/exec/tasks/init.rb:37:in `<main>'
           OUTPUT
         )
-        end
+      end
     end
 
     context 'when RPC failed with error' do
       let(:result_set_name) { 'rpc_error' }
 
-      describe '#format formats the result' do
-        it 'format an error result' do
-          expect(formatter.format(first_result).to_s).to eq(
-            <<~OUTPUT.chomp
-              ⨯ vm001.example.com
-                RPC error (5): Task exec is not available or does not match the specification, please download it
-            OUTPUT
-          )
-        end
+      it 'formats an error result' do
+        expect(formatter.format(first_result).to_s).to eq(
+          <<~OUTPUT.chomp
+            ⨯ vm001.example.com
+              RPC error (5): Task exec is not available or does not match the specification, please download it
+          OUTPUT
+        )
       end
     end
 
