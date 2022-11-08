@@ -1,0 +1,15 @@
+{
+  "sender": "vm001.example.com",
+  "statuscode": 1,
+  "statusmsg": "choria.tasks/task-error: The task errored with a code 1",
+  "data": {
+    "task": "exec",
+    "callerid": "choria=romuald.mcollective",
+    "exitcode": 1,
+    "stdout": "{\"_output\":\"false (GNU coreutils) 8.32\\nCopyright (C) 2020 Free Software Foundation, Inc.\\nLicense GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.\\nThis is free software: you are free to change and redistribute it.\\nThere is NO WARRANTY, to the extent permitted by law.\\n\\nWritten by Jim Meyering.\\n\",\"exit_code\":1,\"_error\":{\"kind\":\"choria.tasks/task-error\",\"msg\":\"The task errored with a code 1\",\"details\":{\"exitcode\":1}}}",
+    "stderr": "",
+    "completed": true,
+    "runtime": 0.17200309,
+    "start_time": 1667895181
+  }
+}
