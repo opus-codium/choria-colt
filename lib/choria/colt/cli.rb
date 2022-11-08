@@ -44,7 +44,7 @@ module Choria
 
           environment = options['environment']
           results = colt.run_bolt_task task_name, input: input, targets: targets, targets_with_classes: targets_with_classes, environment: environment do |result|
-            $stdout.puts formatter.process_result(result)
+            $stdout.puts formatter.format(result)
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
@@ -91,7 +91,7 @@ module Choria
           targets, targets_with_classes = extract_targets_and_filters_from_options
 
           results = colt.wait_bolt_task(task_id, targets: targets, targets_with_classes: targets_with_classes) do |result|
-            $stdout.puts formatter.process_result(result)
+            $stdout.puts formatter.format(result)
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)

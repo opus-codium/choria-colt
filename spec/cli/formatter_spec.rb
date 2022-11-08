@@ -15,8 +15,8 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       # "/bin/true --version"
       let(:rpc_result) { load_from_result_file 'bin_true__version' }
       describe '#process_result' do
-        it 'format a successful result' do
-          expect(formatter.process_result(rpc_result)).to eq(
+        it 'formats a successful result' do
+          expect(formatter.format(rpc_result).to_s).to eq(
             <<~OUTPUT.chomp
               √ vm012345.example.com                                        duration: 0.08s
                 true (GNU coreutils) 8.32
@@ -37,7 +37,7 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       let(:rpc_result) { load_from_result_file 'bin_false__version' }
       describe '#process_result' do
         it 'format an error result' do
-          expect(formatter.process_result(rpc_result)).to eq(
+          expect(formatter.format(rpc_result).to_s).to eq(
             # rubocop:disable Layout/TrailingWhitespace
             <<~OUTPUT.chomp
               ⨯ vm012345.example.com                                        duration: 0.17s
@@ -65,7 +65,7 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       let(:rpc_result) { load_from_result_file 'rpc_error' }
       describe '#process_result' do
         it 'format an error result' do
-          expect(formatter.process_result(rpc_result)).to eq(
+          expect(formatter.format(rpc_result).to_s).to eq(
             <<~OUTPUT.chomp
               ⨯ vm012345.example.com
                 RPC error (5): Task exec is not available or does not match the specification, please download it
