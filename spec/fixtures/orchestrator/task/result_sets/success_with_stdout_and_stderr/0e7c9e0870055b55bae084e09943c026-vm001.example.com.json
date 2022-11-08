@@ -1,0 +1,15 @@
+{
+  "sender": "vm001.example.com",
+  "statuscode": 0,
+  "statusmsg": "OK",
+  "data": {
+    "task": "nextcloud::upgrade",
+    "callerid": "choria=romuald.mcollective",
+    "exitcode": 0,
+    "stdout": "{\"_output\":\"Maintenance mode enabled\\nSetting log level to debug\\nUpdating database schema\\nUpdated database\\nStarting code integrity check...\\nFinished code integrity check\\nUpdate successful\\nMaintenance mode is kept active\\nResetting log level\\nMaintenance mode disabled\\n.htaccess has been updated\\n\"}",
+    "stderr": "Nextcloud or one of the apps require upgrade - only a limited number of commands are available\nYou may use your browser or the occ upgrade command to do the upgrade\n",
+    "completed": true,
+    "runtime": 160.982427236,
+    "start_time": 1667849346
+  }
+}

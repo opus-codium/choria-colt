@@ -22,11 +22,7 @@ module Choria
         # On one side, data.stderr is filled by the remote execution stderr.
         # On the other side, error description is in JSON (ie. '_error')
         # So merge data.stderr in '_error'.'details'
-        unless res.dig(:data, :stderr).nil? || res[:data][:stderr].empty?
-          raise NotImplementedError, 'What to do when res[:data][:stderr] contains something?' if res[:result]['_error'].empty?
-
-          res[:result]['_error']['details'].merge!({ 'stderr' => res[:data][:stderr].split("\n") })
-        end
+        res[:result]['_stderr'] = res[:data][:stderr].split("\n") unless res.dig(:data, :stderr).nil? || res[:data][:stderr].empty?
         res[:data].delete :stderr
 
         # Convert '_output' (ie. stdout) lines into array
