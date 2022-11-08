@@ -134,4 +134,31 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       end
     end
   end
+
+  context 'with a response which contains a success with stdout and stderr' do
+    let(:result_set_name) { 'success_with_stdout_and_stderr' }
+    it 'formats an error result' do
+      res = formatter.format(result_set.results.first).to_s
+      expect(res).to eq(
+        <<~OUTPUT.chomp
+          √ vm001.example.com                                           duration: 160.98s
+            Maintenance mode enabled
+            Setting log level to debug
+            Updating database schema
+            Updated database
+            Starting code integrity check...
+            Finished code integrity check
+            Update successful
+            Maintenance mode is kept active
+            Resetting log level
+            Maintenance mode disabled
+            .htaccess has been updated
+          #{'  '}
+            stderr:
+            Nextcloud or one of the apps require upgrade - only a limited number of commands are available
+            You may use your browser or the occ upgrade command to do the upgrade
+        OUTPUT
+      )
+    end
+  end
 end

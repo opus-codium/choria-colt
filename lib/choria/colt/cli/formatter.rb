@@ -111,9 +111,11 @@ module Choria
 
           def format_success
             headline = "#{pastel.on_green ' '} "
+            warning_headline = "#{pastel.on_yellow ' '} "
 
             [
               output.map { |line| "#{headline}#{line}" },
+              stderr_description.flatten.map { |line| "#{warning_headline}#{line}" },
             ].flatten.join("\n")
           end
 
