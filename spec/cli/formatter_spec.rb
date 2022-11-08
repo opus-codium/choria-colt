@@ -73,6 +73,31 @@ RSpec.describe Choria::Colt::CLI::Formatter do
       end
     end
 
+
+    context 'when executing an invalid command' do
+      # "/bin/invalid_command"
+      let(:result_set_name) { 'exec__invalid_command' }
+
+      it 'format an error result' do
+        expect(formatter.format(first_result).to_s).to eq(
+          <<~OUTPUT.chomp
+            ⨯ vm001.example.com                                           duration: 0.14s
+              choria.tasks/task-error: The task errored with a code 1
+                details: {
+                  "exitcode": 1
+                }
+            #{'  '}
+              stderr:
+              /opt/puppetlabs/puppet/lib/ruby/2.7.0/open3.rb:213:in `spawn': No such file or directory - /bin/invalid_command (Errno::ENOENT)
+              	from /opt/puppetlabs/puppet/lib/ruby/2.7.0/open3.rb:213:in `popen_run'
+              	from /opt/puppetlabs/puppet/lib/ruby/2.7.0/open3.rb:159:in `popen2'
+              	from /opt/puppetlabs/mcollective/tasks-spool/680f0cfb902f5e728fb1ab9bd3c539a2/files/exec/tasks/init.rb:16:in `get2'
+              	from /opt/puppetlabs/mcollective/tasks-spool/680f0cfb902f5e728fb1ab9bd3c539a2/files/exec/tasks/init.rb:37:in `<main>'
+          OUTPUT
+        )
+        end
+    end
+
     context 'when RPC failed with error' do
       let(:result_set_name) { 'rpc_error' }
 
