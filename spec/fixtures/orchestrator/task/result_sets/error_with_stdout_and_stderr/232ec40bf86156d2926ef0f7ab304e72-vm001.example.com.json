@@ -1,0 +1,15 @@
+{
+  "sender": "vm001.example.com",
+  "statuscode": 1,
+  "statusmsg": "choria.tasks/task-error: The task errored with a code 1",
+  "data": {
+    "task": "nextcloud::upgrade",
+    "callerid": "choria=romuald.mcollective",
+    "exitcode": 1,
+    "stdout": "{\"_output\":\"\",\"_error\":{\"kind\":\"choria.tasks/task-error\",\"msg\":\"The task errored with a code 1\",\"details\":{\"exitcode\":1}}}",
+    "stderr": "/opt/puppetlabs/mcollective/tasks-spool/232ec40bf86156d2926ef0f7ab304e72/files/nextcloud/tasks/upgrade.rb:6:in `require_relative': cannot load such file -- /opt/puppetlabs/mcollective/tasks-spool/232ec40bf86156d2926ef0f7ab304e72/files/nextcloud/tasks/utils/application_factory (LoadError)\n\tfrom /opt/puppetlabs/mcollective/tasks-spool/232ec40bf86156d2926ef0f7ab304e72/files/nextcloud/tasks/upgrade.rb:6:in `<main>'\n",
+    "completed": true,
+    "runtime": 0.060000897,
+    "start_time": 1667848543
+  }
+}

@@ -34,6 +34,10 @@ module Choria
               dig(:result, :_output)
             end
           end
+
+          def stderr
+            dig(:result, :_stderr)
+          end
         end
 
         module FormattedResult
@@ -127,6 +131,7 @@ module Choria
               [
                 error_description,
                 output_description,
+                stderr_description,
               ].flatten.map { |line| "#{headline}#{line}" },
             ].flatten.join("\n")
           end

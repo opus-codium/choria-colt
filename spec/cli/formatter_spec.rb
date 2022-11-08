@@ -87,5 +87,26 @@ RSpec.describe Choria::Colt::CLI::Formatter do
         end
       end
     end
+
+    context 'with a response which contains an error with stdout and stderr' do
+      let(:result_set_name) { 'error_with_stdout_and_stderr' }
+
+      it 'formats an error result' do
+        res = formatter.format(result_set.results.first).to_s
+        expect(res).to eq(
+          <<~OUTPUT.chomp
+            ⨯ vm001.example.com                                           duration: 0.06s
+              choria.tasks/task-error: The task errored with a code 1
+                details: {
+                  "exitcode": 1
+                }
+            #{'  '}
+              stderr:
+              /opt/puppetlabs/mcollective/tasks-spool/232ec40bf86156d2926ef0f7ab304e72/files/nextcloud/tasks/upgrade.rb:6:in `require_relative': cannot load such file -- /opt/puppetlabs/mcollective/tasks-spool/232ec40bf86156d2926ef0f7ab304e72/files/nextcloud/tasks/utils/application_factory (LoadError)
+              	from /opt/puppetlabs/mcollective/tasks-spool/232ec40bf86156d2926ef0f7ab304e72/files/nextcloud/tasks/upgrade.rb:6:in `<main>'
+          OUTPUT
+        )
+      end
+    end
   end
 end

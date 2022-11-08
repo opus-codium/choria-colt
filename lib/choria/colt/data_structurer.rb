@@ -25,7 +25,7 @@ module Choria
         unless res.dig(:data, :stderr).nil? || res[:data][:stderr].empty?
           raise NotImplementedError, 'What to do when res[:data][:stderr] contains something?' if res[:result]['_error'].empty?
 
-          res[:result]['_error']['details'].merge!({ 'stderr' => res[:data][:stderr].split("\n") })
+          res[:result]['_stderr'] = res[:data][:stderr].split("\n")
         end
         res[:data].delete :stderr
 
