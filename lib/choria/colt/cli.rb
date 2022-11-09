@@ -86,12 +86,24 @@ module Choria
 
           A task ID is required to request Choria services and retrieve results.
         DESC
+        option :style,
+               aliases: ['-S'],
+               desc: "Output style; can be 'continuous' or 'summary'",
+               default: 'summary'
         define_targets_and_filters_options
         def status(task_id)
+          supported_styles = %i[summary continous]
+          raise Thor::Error, "Invalid style: '#{options['style']}' (available: #{supported_styles})" unless supported_styles.include? options['style'].to_sym
+
           targets, targets_with_classes = extract_targets_and_filters_from_options
 
-          results = colt.wait_bolt_task(task_id, targets: targets, targets_with_classes: targets_with_classes) do |result|
-            $stdout.puts formatter.format(result)
+          case options['style']
+          when 'continous'
+            results = colt.wait_bolt_task(task_id, targets: targets, targets_with_classes: targets_with_classes) do |result|
+              $stdout.puts formatter.format(result)
+            end
+          when 'summary'
+            show_summarized_status(task_id, targets: targets, targets_with_classes: targets_with_classes)
           end
 
           File.write 'last_run.json', JSON.pretty_generate(results)
@@ -184,6 +196,33 @@ module Choria
               output += "  Default: #{metadata['default']}" unless metadata['default'].nil?
               output
             end.join "\n"
+          end
+
+          def summarize(results)
+            results_grouped_by_result_content = results.group_by { |result| result[:result] }
+            results_grouped_by_result_content.each do |_content, grouped_results|
+              # Display each host
+              grouped_results.each do |result|
+                $stdout.puts formatter.format(result).host
+              end
+              # Display the result content
+              content = formatter.format(grouped_results.first).content
+              content = pastel.bright_white '(no output)' if content.nil? || content.empty?
+              $stdout.puts content
+            end
+          end
+
+          def show_summarized_status(task_id, targets:, targets_with_classes:)
+            require 'tty-progressbar'
+
+            bar = TTY::ProgressBar.new('[:bar] :current/:total ET::elapsed ETA::eta :rate/s')
+            results = colt.wait_bolt_task(task_id, targets: targets, targets_with_classes: targets_with_classes) do |_result, count, total_count|
+              bar.update total: total_count
+              bar.current = count
+            end
+
+            puts "\nSummary:"
+            summarize(results)
           end
 
           def pastel

@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'puppet'
   spec.add_dependency 'thor'
   spec.add_dependency 'tty-logger'
+  spec.add_dependency 'tty-progressbar'
 
   # spec.add_development_dependency 'byebug'
   spec.add_development_dependency 'github_changelog_generator'

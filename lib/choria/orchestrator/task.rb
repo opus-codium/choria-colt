@@ -57,7 +57,7 @@ module Choria
       end
 
       def on_result(&block)
-        @on_result = ->(result) { block.call(result) }
+        @on_result = ->(result, count, total_count) { block.call(result, count, total_count) }
       end
 
       private
@@ -83,8 +83,9 @@ module Choria
         new_results.each do |res|
           log_new_result res
 
-          result_set.integrate_result(res)
           @pending_targets.delete res[:sender]
+          result_set.pending_count = @pending_targets.count
+          result_set.integrate_result res
         end
       end
 
