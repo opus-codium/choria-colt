@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.8.0](https://github.com/opus-codium/choria-colt/tree/v0.8.0) (2022-11-25)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.7.0...v0.8.0)
+
+**Merged pull requests:**
+
+- CLI: Summarize task status results by default [\#33](https://github.com/opus-codium/choria-colt/pull/33) ([neomilium](https://github.com/neomilium))
+- CLI: Always display stderr if available [\#32](https://github.com/opus-codium/choria-colt/pull/32) ([neomilium](https://github.com/neomilium))
+
 ## [v0.7.0](https://github.com/opus-codium/choria-colt/tree/v0.7.0) (2022-09-26)
 
 [Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.6.0...v0.7.0)
