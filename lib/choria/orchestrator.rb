@@ -48,7 +48,7 @@ module Choria
     end
 
     def discover(targets: nil, targets_with_classes: nil)
-      logger.debug "Targets: #{targets.nil? ? 'all' : targets})"
+      logger.debug "Targets: #{targets.nil? ? 'all' : targets}"
       targets&.each { |target| rpc_client.identity_filter target }
 
       unless targets_with_classes.nil?
