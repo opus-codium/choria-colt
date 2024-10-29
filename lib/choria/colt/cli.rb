@@ -174,9 +174,12 @@ module Choria
           def show_tasks_summary(tasks)
             tasks.reject! { |_task, metadata| metadata['metadata']['private'] }
 
+            task_name_max_size = 0
+            tasks.each { |task, _metadata| task_name_max_size = [task_name_max_size, task.size].max }
+
             puts <<~OUTPUT
               #{pastel.title 'Tasks'}
-              #{tasks.map { |task, metadata| "#{task}#{' ' * (60 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
+              #{tasks.map { |task, metadata| "#{task}#{' ' * (task_name_max_size + 4 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
             OUTPUT
           end
 
