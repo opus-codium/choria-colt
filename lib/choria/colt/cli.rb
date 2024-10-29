@@ -92,8 +92,7 @@ module Choria
                default: 'summary'
         define_targets_and_filters_options
         def status(task_id)
-          supported_styles = %i[summary continous]
-          raise Thor::Error, "Invalid style: '#{options['style']}' (available: #{supported_styles})" unless supported_styles.include? options['style'].to_sym
+          validate_style_option
 
           targets, targets_with_classes = extract_targets_and_filters_from_options
 
@@ -129,6 +128,11 @@ module Choria
 
           def formatter
             @formatter ||= Formatter.new(colored: $stdout.tty?)
+          end
+
+          def validate_style_option
+            supported_styles = %i[summary continous]
+            raise Thor::Error, "Invalid style: '#{options['style']}' (available: #{supported_styles.map(&:to_s)})" unless supported_styles.include? options['style'].to_sym
           end
 
           def extract_task_parameters_from_args(args)
@@ -170,9 +174,12 @@ module Choria
           def show_tasks_summary(tasks)
             tasks.reject! { |_task, metadata| metadata['metadata']['private'] }
 
+            task_name_max_size = 0
+            tasks.each { |task, _metadata| task_name_max_size = [task_name_max_size, task.size].max }
+
             puts <<~OUTPUT
               #{pastel.title 'Tasks'}
-              #{tasks.map { |task, metadata| "#{task}#{' ' * (60 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
+              #{tasks.map { |task, metadata| "#{task}#{' ' * (task_name_max_size + 4 - task.size)}#{metadata['metadata']['description']}" }.join("\n").gsub(/^/, '  ')}
             OUTPUT
           end
 

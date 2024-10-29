@@ -42,13 +42,13 @@ module Choria
     def run(task, targets: nil, targets_with_classes: nil, verbose: false)
       rpc_client.progress = verbose
       discover(targets: targets, targets_with_classes: targets_with_classes)
-      raise DiscoverError, 'No requests sent, no nodes discovered' if rpc_client.discover.size.zero?
+      raise DiscoverError, 'No requests sent, no nodes discovered' if rpc_client.discover.empty?
 
       task.run
     end
 
     def discover(targets: nil, targets_with_classes: nil)
-      logger.debug "Targets: #{targets.nil? ? 'all' : targets})"
+      logger.debug "Targets: #{targets.nil? ? 'all' : targets}"
       targets&.each { |target| rpc_client.identity_filter target }
 
       unless targets_with_classes.nil?
