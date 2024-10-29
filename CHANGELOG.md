@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.8.1](https://github.com/opus-codium/choria-colt/tree/v0.8.1) (2024-10-29)
+
+[Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.8.0...v0.8.1)
+
+**Merged pull requests:**
+
+- CLI: Fix `colt tasks show` when using it with long task names [\#34](https://github.com/opus-codium/choria-colt/pull/34) ([neomilium](https://github.com/neomilium))
+
 ## [v0.8.0](https://github.com/opus-codium/choria-colt/tree/v0.8.0) (2022-11-25)
 
 [Full Changelog](https://github.com/opus-codium/choria-colt/compare/v0.7.0...v0.8.0)
