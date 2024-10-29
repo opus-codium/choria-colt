@@ -92,8 +92,7 @@ module Choria
                default: 'summary'
         define_targets_and_filters_options
         def status(task_id)
-          supported_styles = %i[summary continous]
-          raise Thor::Error, "Invalid style: '#{options['style']}' (available: #{supported_styles})" unless supported_styles.include? options['style'].to_sym
+          validate_style_option
 
           targets, targets_with_classes = extract_targets_and_filters_from_options
 
@@ -129,6 +128,11 @@ module Choria
 
           def formatter
             @formatter ||= Formatter.new(colored: $stdout.tty?)
+          end
+
+          def validate_style_option
+            supported_styles = %i[summary continous]
+            raise Thor::Error, "Invalid style: '#{options['style']}' (available: #{supported_styles.map(&:to_s)})" unless supported_styles.include? options['style'].to_sym
           end
 
           def extract_task_parameters_from_args(args)
